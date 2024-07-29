@@ -1,4 +1,5 @@
 import 'package:devjang_cs/models/user_model.dart';
+import 'package:devjang_cs/pages/chat_screen.dart';
 import 'package:devjang_cs/pages/login_page.dart';
 import 'package:devjang_cs/pages/select_type_page.dart';
 import 'package:devjang_cs/providers/page_provider.dart';
@@ -72,6 +73,9 @@ class _HomePageState extends State<HomePage> {
       if (_pageProvider.page == 0) {
         // 챗봇 선택 페이지
         return const SelectTypePage();
+      } else if (_pageProvider.page == 1) {
+        // chat screen
+        return const ChatScreen();
       }
       return Container();
     } else {

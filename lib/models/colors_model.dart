@@ -28,4 +28,7 @@ class ColorsModel {
   final Color green = const Color(0xff278E52);
   final Color d6 = const Color(0xffD6D6D6);
   final Color skeyBlue = const Color(0xffF5F8FC);
+  final Color gptTextBox = const Color(0xffECE6F0);
+  final Color userTextBox = const Color(0xffF5F7FB);
+  final Color textInputBorder = const Color(0xffE2E8F0);
 }

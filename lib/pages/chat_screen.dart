@@ -1,9 +1,10 @@
-import 'package:devjang_cs/models/chat_type_model.dart';
+import 'package:devjang_cs/models/chat_model.dart';
 import 'package:devjang_cs/models/colors_model.dart';
 import 'package:devjang_cs/models/user_model.dart';
 import 'package:devjang_cs/providers/page_provider.dart';
 import 'package:devjang_cs/services/auth_service.dart';
 import 'package:devjang_cs/services/chat_services.dart';
+import 'package:devjang_cs/services/classification_platform.dart';
 import 'package:devjang_cs/services/user_services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,9 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class ChatScreen extends StatefulWidget {
-  final ChatTypeModel typeModel; // 프롬프트 및 대화창 탐색을 위한 타입모델
-  // 아래와 같이 작성하면 ChatScreen을 호출할 때 반드시 typeModel을 넘겨주도록 할 수 있다
-  const ChatScreen({Key? key, required this.typeModel}) : super(key: key);
+  const ChatScreen({Key? key,}) : super(key: key);
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -35,113 +34,113 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    promptInit();
-    userInit();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      // provider를 사용시 초기에는 정보를 바로 못받아오는 경우가 있어서
+      // 최초 1회 빌드 후 호출하게 해둠
+      promptInit();
+      userInit();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     _pageProvider = Provider.of<PageProvider>(context, listen: true);
+    // 가로 사이즈에 따라서 플랫폼 구별
+    bool isWeb = ClassificationPlatform().classifyWithScreenSize(context: context) == 2;
 
     return GestureDetector(
       onTap: () {
         // 바탕 터치시 키보드를 내리기 위함
         FocusManager.instance.primaryFocus?.unfocus();
       },
-      child: Scaffold(
-        appBar: AppBar(
-          leadingWidth: 40,
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 15.0),
-            child: GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pop();
-                },
-                child: SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: Image.asset("assets/icons/arrowLeft.png",
-                      color: _colorsModel.bl,))),
-          ),
-          title: Text("${widget.typeModel.key}와 대화하기", style: TextStyle(
-            fontSize: 16,
-          ),),// widget.을 사용하면 위에 정의한(ChatScreen) 변수를 가져다 쓸 수 있다
-        ),
-        body: Column(
-          children: [
-            Expanded(  // Expanded를 써야 ListView가 차지할 크기를 알 수 있기에 사용할 수 있는 크기를 전부 사용하라는 의미
-              child: ListView.builder(
-                controller: _scrollController,
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  return _buildMessage(_messages[index]);
-                },
-              ),
+      child: Column(
+        children: [
+          Expanded(  // Expanded를 써야 ListView가 차지할 크기를 알 수 있기에 사용할 수 있는 크기를 전부 사용하라는 의미
+            child: ListView.builder(
+              controller: _scrollController,
+              itemCount: _messages.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: isWeb ? const EdgeInsets.only(left: 60, right: 60) : const EdgeInsets.only(left: 15, right: 15),
+                  child: _buildMessage(_messages[index]),
+                );
+              },
             ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 40, left: 15, right: 15),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      maxLines: null,  // 엔터를 눌러 다음 줄을 생성하기 위함
-                      textInputAction: TextInputAction.newline,  // 엔터를 눌러 다음 줄을 생성하기 위함
-                      decoration: InputDecoration(
-                        hintText: '메세지를 입력해주세요',
-                        fillColor: Colors.white,
-                        filled: true,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        border: InputBorder.none,
-                        disabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: _colorsModel.gr3,
-                            width: 1,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 40, left: 60, right: 60),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    maxLines: null,  // 엔터를 눌러 다음 줄을 생성하기 위함
+                    textInputAction: TextInputAction.newline,  // 엔터를 눌러 다음 줄을 생성하기 위함
+                    decoration: InputDecoration(
+                      suffixIcon: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: GestureDetector(
+                          onTap: () {
+                            _sendMessage();
+                          },
+                          child: MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: Image.asset("assets/icons/send.png"),
+                            ),
                           ),
-                          borderRadius: BorderRadius.circular(36),
                         ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          // borderSide: BorderSide.none,
-                          borderSide: BorderSide(
-                            color: _colorsModel.gr3,
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.circular(36),
+                      ),
+                      hintText: 'Type a message',
+                      fillColor: Colors.white,
+                      filled: true,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      border: InputBorder.none,
+                      disabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: _colorsModel.textInputBorder,
+                          width: 1,
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: _colorsModel.main,
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.circular(36),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        // borderSide: BorderSide.none,
+                        borderSide: BorderSide(
+                          color: _colorsModel.textInputBorder,
+                          width: 1,
                         ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color:  _colorsModel.gr3,
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.circular(36),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: _colorsModel.main,
+                          width: 1,
                         ),
-                        errorBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: _colorsModel.gr3,
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.circular(36),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color:  _colorsModel.textInputBorder,
+                          width: 1,
                         ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: _colorsModel.textInputBorder,
+                          width: 1,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  IconButton(
-                    icon: const Icon(Icons.send, color: Colors.blue),
-                    onPressed: _sendMessage,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -149,7 +148,7 @@ class _ChatScreenState extends State<ChatScreen> {
   // 서버에 저장된 대화기록을 불러오는 함수
   // 이전대화까지 포함하여 GPT API통신시 함께 보낼 수 있다
   Future<void> _loadChatMessages() async {
-    List<Map<String, dynamic>> messages = await _chatServices.loadChatMessages(key: widget.typeModel.key, uid: _userModel.uid ?? "");
+    List<Map<String, dynamic>> messages = await _chatServices.loadChatMessages(key: _pageProvider.selectChatModel.key, uid: _userModel.uid ?? "");
     print('messages ${messages}');
     setState(() {
       _messages = messages;
@@ -173,7 +172,7 @@ class _ChatScreenState extends State<ChatScreen> {
       });
     });
 
-    await _chatServices.saveChatMessage(key: widget.typeModel.key, uid: _userModel.uid ?? "", role: 'user', message:  userMessage);
+    await _chatServices.saveChatMessage(key: _pageProvider.selectChatModel.key, uid: _userModel.uid ?? "", role: 'user', message:  userMessage);
 
     final assistantMessage = await _chatServices.getResponse(_messages.map((msg) {
       return {
@@ -191,7 +190,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     });
 
-    await _chatServices.saveChatMessage(key: widget.typeModel.key, uid: _userModel.uid ?? "", role: 'assistant',message:  assistantMessage);
+    await _chatServices.saveChatMessage(key: _pageProvider.selectChatModel.key, uid: _userModel.uid ?? "", role: 'assistant',message:  assistantMessage);
 
     _scrollToBottom();
   }
@@ -223,28 +222,60 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,  // 유저면 오른쪽에 배치
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-        padding: const EdgeInsets.all(10),
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),  // 박스의 최대 폭을 지정
-        decoration: BoxDecoration(
-          color: isUser ? Colors.yellow[700] : Colors.grey[700],  // 유저면 노란색 말풍선
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Column(
-          crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,  // 전송자에 따라 위치를 다르게 하기 위함
-          children: [
-            Text(
-              message['content'] ?? "",  // ?? : ??앞의 값이 null이면 물음표 뒤의 값을 리턴
-              style: TextStyle(color: Colors.white, fontSize: 16),
+      child: Row(
+        mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+        children: [
+          isUser ? Container() : _pageProvider.selectChatModel.img == null ? Container(
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12)
             ),
-            SizedBox(height: 5),
-            Text(
-              message['time'] == null ? "" : _formatTime(message['time']),  // 시간값이 null이면 빈 String을 사용
-              style: const TextStyle(color: Colors.white70, fontSize: 12),
+            width: 50,
+            height: 50,
+            child: Image.asset("assets/icons/img.png", fit: BoxFit.cover,),
+          ) :
+          ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(12)), // 곡률 설정
+            child: Image.network(
+              _pageProvider.selectChatModel.img,  // 이미지 링크 url
+              key: ValueKey(_pageProvider.selectChatModel.img), // 각 위젯의 고유키 설정
+              fit: BoxFit.cover,  // 비율 유지 꽉 채움
+              height: 50,
+              width: 50,
+              errorBuilder: (context, error, stackTrace) {
+                print('img error ${error}');
+                // 오류났을 경우의 위젯, 기본 사진으로 설정
+                return Container(
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12)
+                  ),
+                  width: 50,
+                  height: 50,
+                  child: Image.asset("assets/icons/user.png", fit: BoxFit.cover,),
+                );
+              },
             ),
-          ],
-        ),
+          ),
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+            padding: const EdgeInsets.all(10),
+            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),  // 박스의 최대 폭을 지정
+            decoration: BoxDecoration(
+              color: isUser ? _colorsModel.userTextBox : _colorsModel.gptTextBox,  // 유저면 노란색 말풍선
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Column(
+              crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,  // 전송자에 따라 위치를 다르게 하기 위함
+              children: [
+                Text(
+                  message['content'] ?? "",  // ?? : ??앞의 값이 null이면 물음표 뒤의 값을 리턴
+                  style: const TextStyle(color: Colors.black, fontSize: 16),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -263,7 +294,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // 서버에서 프롬프트 로드
   Future<void> promptInit() async {
-    List resList = await _chatServices.getPrompt(key: widget.typeModel.key);
+    List resList = await _chatServices.getPrompt(key: _pageProvider.selectChatModel.key);
     if (resList.first) {
       setState(() {
         _prompt = resList.last;

@@ -1,13 +1,15 @@
-import 'package:devjang_cs/models/chat_type_model.dart';
+import 'package:devjang_cs/models/chat_model.dart';
 import 'package:devjang_cs/models/colors_model.dart';
 import 'package:devjang_cs/models/user_model.dart';
 import 'package:devjang_cs/pages/chat_screen.dart';
+import 'package:devjang_cs/providers/page_provider.dart';
 import 'package:devjang_cs/services/auth_service.dart';
 import 'package:devjang_cs/services/chat_services.dart';
 import 'package:devjang_cs/services/classification_platform.dart';
 import 'package:devjang_cs/services/user_services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SelectTypePage extends StatefulWidget {
   const SelectTypePage({Key? key}) : super(key: key);
@@ -19,7 +21,8 @@ class SelectTypePage extends StatefulWidget {
 class _SelectTypePageState extends State<SelectTypePage> {
   ColorsModel _colorsModel = ColorsModel();
   bool _loading = false;
-  List<ChatTypeModel> _types = [];  // 서버에 저장된 타입들을 저장하는 변수
+  List<ChatModel> _chatModels = [];  // 서버에 저장된 타입들을 저장하는 변수
+  PageProvider _pageProvider = PageProvider();
 
   @override
   void initState() {
@@ -29,6 +32,8 @@ class _SelectTypePageState extends State<SelectTypePage> {
 
   @override
   Widget build(BuildContext context) {
+    _pageProvider = Provider.of<PageProvider>(context, listen: true);
+
     var screenWidth = MediaQuery.of(context).size.width;
 
     // 가로 사이즈에 따라서 플랫폼 구별
@@ -42,11 +47,11 @@ class _SelectTypePageState extends State<SelectTypePage> {
             const SizedBox(height: 30,),
             Expanded(
               child: ListView.builder(
-                  itemCount: _types.length,
+                  itemCount: _chatModels.length,
               itemBuilder: (BuildContext context, int index) {
               return Padding(
-                padding: const EdgeInsets.only(left: 60, right: 60, bottom: 30),
-                child: typeWidget(_types[index], screenWidth, isWeb),
+                padding: const EdgeInsets.only(left: 15, right: 15, bottom: 30),
+                child: typeWidget(_chatModels[index], screenWidth, isWeb),
               );
               }),
             ),
@@ -62,10 +67,10 @@ class _SelectTypePageState extends State<SelectTypePage> {
                 mainAxisSpacing: 30, //수직 Padding
                 crossAxisSpacing: 100, //수평 Padding
               ),
-              itemCount: _types.length,
+              itemCount: _chatModels.length,
               itemBuilder: (BuildContext context, int index) {
 
-                return typeWidget(_types[index], screenWidth, isWeb);
+                return typeWidget(_chatModels[index], screenWidth, isWeb);
               }),
         ),  // 웹일 경우의 UI
         _loading ? Center(child: CircularProgressIndicator(color: _colorsModel.main,),) : Container(),
@@ -73,7 +78,7 @@ class _SelectTypePageState extends State<SelectTypePage> {
     );
   }
 
-  Widget typeWidget(ChatTypeModel typeModel, screenWidth, bool isWeb) {
+  Widget typeWidget(ChatModel chatModel, screenWidth, bool isWeb) {
 
     return Container(
       decoration: BoxDecoration(
@@ -89,7 +94,7 @@ class _SelectTypePageState extends State<SelectTypePage> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                typeModel.img == null ? Container(
+                chatModel.img == null ? Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12)
@@ -101,8 +106,8 @@ class _SelectTypePageState extends State<SelectTypePage> {
                 ClipRRect(
                   borderRadius: const BorderRadius.all(Radius.circular(12)), // 곡률 설정
                   child: Image.network(
-                    typeModel.img,  // 이미지 링크 url
-                    key: ValueKey(typeModel.img), // 각 위젯의 고유키 설정
+                    chatModel.img,  // 이미지 링크 url
+                    key: ValueKey(chatModel.img), // 각 위젯의 고유키 설정
                     fit: BoxFit.cover,  // 비율 유지 꽉 채움
                     height: 50,
                     width: 50,
@@ -125,7 +130,7 @@ class _SelectTypePageState extends State<SelectTypePage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("${typeModel.key ?? ''}", style: const TextStyle(
+                    Text("${chatModel.key ?? ''}", style: const TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
@@ -139,21 +144,18 @@ class _SelectTypePageState extends State<SelectTypePage> {
               ],
             ),
             const SizedBox(height: 10,),
-            Text("${typeModel.explain ?? ''}", style: TextStyle(
+            Text("${chatModel.explain ?? ''}", style: TextStyle(
               fontSize: 16,
               color: _colorsModel.gr2,
             ),textAlign: TextAlign.center,),
-            !isWeb ? SizedBox(height: 20,) : const Spacer(),  // 넓힐 수 있는 최대 간격을 넓혀줌
+            !isWeb ? const SizedBox(height: 20,) : const Spacer(),  // 넓힐 수 있는 최대 간격을 넓혀줌
             Padding(
               padding: const EdgeInsets.only(left: 40, right: 40),
               child: GestureDetector(
                 onTap: () {
-                  // 클릭시 해당 모델의 대화창으로 이동
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ChatScreen(typeModel: typeModel)
-                      )
-                  );
+                  // 채팅화면에서 사용할 모델 업데이트
+                  _pageProvider.updateChatModel(chatModel);
+                  _pageProvider.updatePage(1);
                 },
                 child: MouseRegion( // 마우스를 감지하여 마우스 모양을 띄워줌
                   cursor: SystemMouseCursors.click,
@@ -194,7 +196,7 @@ class _SelectTypePageState extends State<SelectTypePage> {
 
     if (typesResList.first) {
       setState(() {
-        _types = typesResList.last;
+        _chatModels = typesResList.last;
       });
     }
   }

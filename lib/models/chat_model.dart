@@ -11,15 +11,15 @@
 //   }
 // }
 // 이후 cors이슈로 이미지 로드가 안되기 때문에 다음의 블로그글을 참고하여 해결 : https://devjang2743.tistory.com/37
-class ChatTypeModel {
+class ChatModel {
   var key;  // 해당 키로 채팅데이터를 가져옴
   var explain;  // 해당 타입에 대한 설명
   var img;  // image
 
-  ChatTypeModel({this.explain, this.key, this.img,});
+  ChatModel({this.explain, this.key, this.img,});
 
-  ChatTypeModel returnModel(Map dataMap) {
-    return ChatTypeModel(
+  ChatModel returnModel(Map dataMap) {
+    return ChatModel(
       key: dataMap['key'],
       explain: dataMap['explain'],
       img: dataMap['img'],

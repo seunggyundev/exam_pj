@@ -4,6 +4,7 @@ import 'package:devjang_cs/pages/login_page.dart';
 import 'package:devjang_cs/providers/page_provider.dart';
 import 'package:devjang_cs/providers/validate_provider.dart';
 import 'package:devjang_cs/services/auth_service.dart';
+import 'package:devjang_cs/services/classification_platform.dart';
 import 'package:devjang_cs/services/user_services.dart';
 import 'package:devjang_cs/widgets/dialogs.dart';
 
@@ -32,10 +33,12 @@ class _DrawerWidgetState extends State<DrawerWidget> {
   Widget build(BuildContext context) {
     _pageProvider = Provider.of<PageProvider>(context, listen: true);
     var screenWidth = MediaQuery.of(context).size.width;
+    // 가로 사이즈에 따라서 플랫폼 구별
+    bool isWeb = ClassificationPlatform().classifyWithScreenSize(context: context) == 2;
 
     return Drawer( // 오른쪽 사이드 메뉴 Drawer
       backgroundColor: _colorsModel.wh,
-      width: screenWidth * 0.2,
+      width: isWeb ? screenWidth * 0.2 : screenWidth * 0.4,
       child: ListView(
         padding: EdgeInsets.zero,
         physics: const ScrollPhysics(),

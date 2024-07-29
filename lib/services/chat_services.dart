@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:devjang_cs/models/chat_type_model.dart';
+import 'package:devjang_cs/models/chat_model.dart';
 import 'package:devjang_cs/models/colors_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_database/firebase_database.dart';
@@ -105,13 +105,13 @@ class ChatServices {
       var dataRes = await dataRef.get();  // DatabaseReference에서 .get()키워드를 사용하여 데이터를 가져옴
 
       Map<String, dynamic> dataMap = !dataRes.exists ? {} : Map<String, dynamic>.from(json.decode(json.encode(dataRes.value)));
-      List<ChatTypeModel> types = [];
+      List<ChatModel> types = [];
 
       if (dataMap.isNotEmpty) {
         List keyList = dataMap.keys.toList();
         for (int i = 0; i < keyList.length; i++) {
           Map infoMap = dataMap[keyList[i]];  // 각 타입에 대한 정보들
-          types.add(ChatTypeModel().returnModel(infoMap));
+          types.add(ChatModel().returnModel(infoMap));
         }
       }
 

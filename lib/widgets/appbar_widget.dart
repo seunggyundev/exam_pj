@@ -3,6 +3,7 @@ import 'package:devjang_cs/models/colors_model.dart';
 import 'package:devjang_cs/models/user_model.dart';
 import 'package:devjang_cs/providers/page_provider.dart';
 import 'package:devjang_cs/services/auth_service.dart';
+import 'package:devjang_cs/services/classification_platform.dart';
 import 'package:devjang_cs/services/size_calculate.dart';
 import 'package:devjang_cs/services/user_services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -39,6 +40,9 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
 
   @override
   Widget build(BuildContext context) {
+    // 가로 사이즈에 따라서 플랫폼 구별
+    bool isWeb = ClassificationPlatform().classifyWithScreenSize(context: context) == 2;
+
     return Consumer<PageProvider> (
         builder: (context, provider, child) {
           double screenSizeWidth = MediaQuery.of(context).size.width;
@@ -53,7 +57,7 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Padding(
-                  padding: EdgeInsets.only(top: _sizeCalculate.heightCalculate(screenSizeHeight, 15), left: _sizeCalculate.widthCalculate(screenSizeWidth, 60)),
+                  padding: EdgeInsets.only(top: _sizeCalculate.heightCalculate(screenSizeHeight, 15), left: isWeb ? _sizeCalculate.widthCalculate(screenSizeWidth, 60) : 15),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -77,7 +81,7 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
             ),  // leading은 앱바의 왼쪽을 정의
             actions: [
               Padding(
-                padding: EdgeInsets.only(right: _sizeCalculate.widthCalculate(screenSizeWidth, 60)),
+                padding: EdgeInsets.only(right: isWeb ? _sizeCalculate.widthCalculate(screenSizeWidth, 60) : 15),
                 child: actionsWidget(),
               ),
             ],  // actions는 앱바의 오른쪽 영영을 정의
