@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "343688152767",
+    "project_id": "devjangcs",
+    "storage_bucket": "devjangcs.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:343688152767:android:bc2a0399da5ee158c1a80a",
+        "android_client_info": {
+          "package_name": "com.devjang_cs.devjang_cs"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrbp4srGdocS38kvfHlXsHRTSzHZLz6Hg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
