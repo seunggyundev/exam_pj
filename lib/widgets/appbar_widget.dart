@@ -53,7 +53,7 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Padding(
-                  padding: EdgeInsets.only(top: _sizeCalculate.heightCalculate(screenSizeHeight, 15), left: _sizeCalculate.widthCalculate(screenSizeWidth, 30)),
+                  padding: EdgeInsets.only(top: _sizeCalculate.heightCalculate(screenSizeHeight, 15), left: _sizeCalculate.widthCalculate(screenSizeWidth, 60)),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -76,7 +76,10 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
               ],
             ),  // leading은 앱바의 왼쪽을 정의
             actions: [
-              actionsWidget(),
+              Padding(
+                padding: EdgeInsets.only(right: _sizeCalculate.widthCalculate(screenSizeWidth, 60)),
+                child: actionsWidget(),
+              ),
             ],  // actions는 앱바의 오른쪽 영영을 정의
           );
         });

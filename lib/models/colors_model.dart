@@ -27,4 +27,5 @@ class ColorsModel {
   final Color webLineColor = const Color(0xffE4E4E4);
   final Color green = const Color(0xff278E52);
   final Color d6 = const Color(0xffD6D6D6);
+  final Color skeyBlue = const Color(0xffF5F8FC);
 }

@@ -102,6 +102,7 @@ class _LoginPageState extends State<LoginPage> {
                           setState(() {
                             _loading = false;
                           });
+                          Navigator.pop(context);
                         } else {
                           setState(() {
                             _loading = false;

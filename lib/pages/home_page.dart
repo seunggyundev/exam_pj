@@ -4,6 +4,7 @@ import 'package:devjang_cs/pages/select_type_page.dart';
 import 'package:devjang_cs/providers/page_provider.dart';
 import 'package:devjang_cs/providers/validate_provider.dart';
 import 'package:devjang_cs/services/auth_service.dart';
+import 'package:devjang_cs/services/key_services.dart';
 import 'package:devjang_cs/services/user_services.dart';
 import 'package:devjang_cs/widgets/appbar_widget.dart';
 import 'package:devjang_cs/widgets/dialogs.dart';
@@ -26,7 +27,15 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    keyInit();
     userInit();
+  }
+
+  keyInit() async {
+    List resList = await KeyServicse().getGptKey();
+    if (resList.first) {
+      _pageProvider.updateGptKey(resList.last);
+    }
   }
 
   @override

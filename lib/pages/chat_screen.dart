@@ -1,6 +1,7 @@
 import 'package:devjang_cs/models/chat_type_model.dart';
 import 'package:devjang_cs/models/colors_model.dart';
 import 'package:devjang_cs/models/user_model.dart';
+import 'package:devjang_cs/providers/page_provider.dart';
 import 'package:devjang_cs/services/auth_service.dart';
 import 'package:devjang_cs/services/chat_services.dart';
 import 'package:devjang_cs/services/user_services.dart';
@@ -24,6 +25,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final ColorsModel _colorsModel = ColorsModel();
   final ScrollController _scrollController = ScrollController();
 
+  PageProvider _pageProvider = PageProvider();
   List<Map<String, dynamic>> _messages = [];
   UserModel _userModel = UserModel();
   String _prompt = "";
@@ -39,6 +41,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    _pageProvider = Provider.of<PageProvider>(context, listen: true);
+
     return GestureDetector(
       onTap: () {
         // 바탕 터치시 키보드를 내리기 위함
@@ -176,7 +180,7 @@ class _ChatScreenState extends State<ChatScreen> {
         'role': msg['role'],
         'content': msg['content'],
       };
-    }).toList(), _prompt);
+    }).toList(), _prompt, _pageProvider.gptKey);
 
     setState(() {
       _messages.add({

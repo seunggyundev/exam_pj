@@ -6,9 +6,8 @@ import 'package:firebase_database/firebase_database.dart';
 
 class ChatServices {
   static const String _baseUrl = 'https://api.openai.com/v1/chat/completions';
-  final String apiKey = 'your_api_key';  // your_api_key
 
-  Future<String> getResponse(List<Map<String, dynamic>> messages, String prompt) async {
+  Future<String> getResponse(List<Map<String, dynamic>> messages, String prompt, apiKey) async {
     print('요청 prompt ${prompt}');
     try {
       final response = await http.post(
@@ -111,10 +110,8 @@ class ChatServices {
       if (dataMap.isNotEmpty) {
         List keyList = dataMap.keys.toList();
         for (int i = 0; i < keyList.length; i++) {
-          Map modelMap = {};
-          modelMap['key'] = keyList[i];
-          modelMap['explain'] = dataMap[keyList[i]];
-          types.add(ChatTypeModel().returnModel(modelMap));
+          Map infoMap = dataMap[keyList[i]];  // 각 타입에 대한 정보들
+          types.add(ChatTypeModel().returnModel(infoMap));
         }
       }
 
