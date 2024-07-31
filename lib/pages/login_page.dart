@@ -106,6 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                           setState(() {
                             _loading = false;
                           });
+                          _pageProvider.updateIsRefersh(true);
                           _pageProvider.updatePage(0);
                         } else {
                           setState(() {
