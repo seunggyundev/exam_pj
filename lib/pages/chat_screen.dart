@@ -193,6 +193,7 @@ class _ChatScreenState extends State<ChatScreen> {
     await _chatServices.saveChatMessage(key: _pageProvider.selectChatModel.key, uid: _userModel.uid ?? "", role: 'assistant',message:  assistantMessage);
     if (assistantMessage.contains('토론이 종료되었') || assistantMessage.contains('대화가 종료되었')) {
       ChatServices().endConversation(_pageProvider.selectChatModel.key, _userModel.uid ?? "", _userModel.nm ?? "", _pageProvider.gptKey);
+
     }
   }
 
@@ -289,6 +290,7 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         _userModel = resList.last;
       });
+      await UserServices().updateLinkedTime(uid: _userModel.uid, chatModelKey: _pageProvider.selectChatModel.key);
       await _loadChatMessages();
     }
   }

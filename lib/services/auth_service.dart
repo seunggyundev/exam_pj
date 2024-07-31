@@ -12,7 +12,7 @@ class AuthService {
 
     /// for test
     if (uid == null) {
-      uid = 'y4qOdfXHx7g8I3lHf5Esbg7btCw2';
+      // uid = 'y4qOdfXHx7g8I3lHf5Esbg7btCw2';
     }
 
     return uid;

@@ -63,7 +63,15 @@ class _EvaluationHistoryPageState extends State<EvaluationHistoryPage> {
               color: Colors.black,
             ), textAlign: TextAlign.center,),
             _comment.isEmpty ? Container() : const SizedBox(height: 15,),
-            ListView.builder(
+            _results.isEmpty ? Center(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 60.0),
+                child: Text("아직 대화 기록이 없습니다", style: TextStyle(
+                  fontSize: 16,
+                  color: _colorsModel.gr1,
+                ),),
+              ),
+            ) :ListView.builder(
               physics: NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: _results.length,

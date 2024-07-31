@@ -25,10 +25,13 @@ class _SelectTypePageState extends State<SelectTypePage> {
   bool _loading = false;
   List<ChatModel> _chatModels = [];  // 서버에 저장된 타입들을 저장하는 변수
   PageProvider _pageProvider = PageProvider();
+  UserModel _userModel = UserModel();
+  Map _linkedTimeMap = {};    // 접속기록
 
   @override
   void initState() {
     super.initState();
+    userInit();
     typesInit();  // 서버에서 타입리스트 로드
   }
 
@@ -137,7 +140,7 @@ class _SelectTypePageState extends State<SelectTypePage> {
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),),
-                    Text("접속기록 추후 추가", style: TextStyle(
+                    Text("${_linkedTimeMap[chatModel.key] ?? "${chatModel.key}와 대화해보세요!"}", style: TextStyle(
                       fontSize: 13,
                       color: _colorsModel.gr2,
                     ),textAlign: TextAlign.center,),
@@ -194,7 +197,7 @@ class _SelectTypePageState extends State<SelectTypePage> {
             Padding(
               padding: const EdgeInsets.only(left: 40, right: 40),
               child: GestureDetector(
-                onTap: () {
+                onTap: () async {
                   _pageProvider.updateChatModel(chatModel);
                   _pageProvider.updatePage(2);
                 },
@@ -223,7 +226,6 @@ class _SelectTypePageState extends State<SelectTypePage> {
     );
   }
 
-  // 서버에서 유저정보를 가져옴
   Future<void> typesInit() async {
     setState(() {
       _loading = true;
@@ -242,5 +244,42 @@ class _SelectTypePageState extends State<SelectTypePage> {
     }
   }
 
+  // 서버에서 유저정보를 가져옴
+  Future<void> userInit() async {
+    List resList = await UserServices().getUserModel(uid: AuthService().getUid());
 
+    if (resList.first) {
+      UserModel userModel = resList.last;
+      Map linkedTime = userModel.linkedTime ?? {};
+      Map linkedTimeMap = {};
+      if (linkedTime.isNotEmpty) {
+        List modeList = linkedTime.keys.toList();
+        for (int i = 0; i < modeList.length; i++) {
+          linkedTimeMap[modeList[i]] = timeDifference(linkedTime[modeList[i]] ?? "");
+        }
+      }
+      setState(() {
+        _userModel = userModel;
+        _linkedTimeMap = linkedTimeMap;
+      });
+    }
+  }
+
+  String timeDifference(String timestamp) {
+    DateTime inputTime = DateTime.parse(timestamp);
+    DateTime now = DateTime.now();
+
+    Duration difference = now.difference(inputTime);
+
+    if (difference.inMinutes < 60) {
+      return '${difference.inMinutes}분 전';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours}시간 전';
+    } else if (difference.inDays < 30) {
+      return '${difference.inDays}일 전';
+    } else {
+      int months = difference.inDays ~/ 30;
+      return '${months}개월 전';
+    }
+  }
 }

@@ -1,7 +1,9 @@
 import 'package:devjang_cs/models/colors_model.dart';
 import 'package:devjang_cs/pages/regist_user_page.dart';
+import 'package:devjang_cs/providers/page_provider.dart';
 import 'package:devjang_cs/providers/validate_provider.dart';
 import 'package:devjang_cs/services/auth_service.dart';
+import 'package:devjang_cs/services/classification_platform.dart';
 import 'package:devjang_cs/services/user_services.dart';
 import 'package:devjang_cs/services/validate.dart';
 import 'package:devjang_cs/widgets/dialogs.dart';
@@ -21,7 +23,7 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _passwordConfirmController = TextEditingController();
-
+  PageProvider _pageProvider = PageProvider();
   ValidateProvider _validateProvider = ValidateProvider();
   ScrollController _scrollController = ScrollController();
 
@@ -60,8 +62,10 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     _validateProvider = Provider.of<ValidateProvider>(context, listen: true);
+    _pageProvider = Provider.of<PageProvider>(context, listen: true);
 
     var screenWidth = MediaQuery.of(context).size.width;
+    bool isWeb = ClassificationPlatform().classifyWithScreenSize(context: context) == 2;
 
     return Stack(
       children: [
@@ -70,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
           physics: const ScrollPhysics(),
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: 15, right: 15),
+              padding: isWeb ? const EdgeInsets.only(left: 60, right: 60) : const EdgeInsets.only(left: 15, right: 15),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -102,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                           setState(() {
                             _loading = false;
                           });
-                          Navigator.pop(context);
+                          _pageProvider.updatePage(0);
                         } else {
                           setState(() {
                             _loading = false;

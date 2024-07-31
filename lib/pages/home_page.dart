@@ -44,6 +44,13 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     _pageProvider = Provider.of<PageProvider>(context, listen: true);
 
+    if (_pageProvider.isRefresh) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        userInit();
+        _pageProvider.updateIsRefersh(false);
+      });
+    }
+
     print('V.13');
     return GestureDetector(
       onTap: () {
@@ -78,9 +85,14 @@ class _HomePageState extends State<HomePage> {
         // chat screen
         return const ChatScreen();
       } else if (_pageProvider.page == 2) {
-      // chat screen
       return const EvaluationHistoryPage();
-    }
+    } else if (_pageProvider.page == 3) {
+        return MultiProvider(
+            providers: [
+              ChangeNotifierProvider(create: (_) => ValidateProvider()),
+            ],
+            child: const LoginPage());
+      }
       return Container();
     } else {
       // 유저정보가 없으면 회원가입 버튼을 아니면 채팅 타입선택창을 띄움

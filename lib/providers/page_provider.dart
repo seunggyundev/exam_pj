@@ -2,6 +2,15 @@ import 'package:devjang_cs/models/chat_model.dart';
 import 'package:flutter/cupertino.dart';
 
 class PageProvider extends ChangeNotifier {
+
+  bool _isRefresh = false;
+  bool get isRefresh => _isRefresh;
+
+  updateIsRefersh(bool isRefresh) {
+    _isRefresh = isRefresh;
+    notifyListeners();
+  }
+
   ChatModel _selectChatModel = ChatModel();
   ChatModel get selectChatModel => _selectChatModel;
 

@@ -37,6 +37,9 @@ class _DrawerWidgetState extends State<DrawerWidget> {
     bool isWeb = ClassificationPlatform().classifyWithScreenSize(context: context) == 2;
 
     return Drawer( // 오른쪽 사이드 메뉴 Drawer
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.zero,
+      ),
       backgroundColor: _colorsModel.wh,
       width: isWeb ? screenWidth * 0.2 : screenWidth * 0.4,
       child: ListView(
@@ -116,6 +119,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                   _userModel = UserModel();
                 });
               }
+              _pageProvider.updateIsRefersh(true);
               Navigator.of(context).pop();
             },
           ) : ListTile(
@@ -128,16 +132,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               ),),
             ),
             onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) =>  MultiProvider(
-                      providers: [
-                        ChangeNotifierProvider(create: (_) => ValidateProvider()),
-                      ],
-                      child: const LoginPage())
-                  )
-              );
-              Navigator.of(context).pop();
+              _pageProvider.updatePage(3);
             },
           ),
         ],
