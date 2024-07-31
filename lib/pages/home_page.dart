@@ -1,5 +1,6 @@
 import 'package:devjang_cs/models/user_model.dart';
 import 'package:devjang_cs/pages/chat_screen.dart';
+import 'package:devjang_cs/pages/evaluation_history_page.dart';
 import 'package:devjang_cs/pages/login_page.dart';
 import 'package:devjang_cs/pages/select_type_page.dart';
 import 'package:devjang_cs/providers/page_provider.dart';
@@ -76,7 +77,10 @@ class _HomePageState extends State<HomePage> {
       } else if (_pageProvider.page == 1) {
         // chat screen
         return const ChatScreen();
-      }
+      } else if (_pageProvider.page == 2) {
+      // chat screen
+      return const EvaluationHistoryPage();
+    }
       return Container();
     } else {
       // 유저정보가 없으면 회원가입 버튼을 아니면 채팅 타입선택창을 띄움

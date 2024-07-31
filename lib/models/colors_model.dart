@@ -18,7 +18,7 @@ class ColorsModel {
   final Color gr4 = const Color(0xffF7F7F7);
   final Color gr5 = const Color(0xffECECEC);
   final Color gr6 = const Color(0xffF4F4F4);
-  final Color red = const Color(0xffC43F44);
+  final Color lightRed = const Color(0xffC43F44);
   final Color background = const Color(0xffF9F9F9);
   final Color g97 = const Color(0xff979797);
   final Color cupertinoAlertBtnText = const Color(0xff007aff);
@@ -31,4 +31,8 @@ class ColorsModel {
   final Color gptTextBox = const Color(0xffECE6F0);
   final Color userTextBox = const Color(0xffF5F7FB);
   final Color textInputBorder = const Color(0xffE2E8F0);
+  final Color evaluateBox = const Color(0x38ECE6F0);
+  final Color blue = const Color(0xff001AFF);
+  final Color orange = const Color(0xffFF7A00);
+  final Color red = const Color(0xffFF0000);
 }

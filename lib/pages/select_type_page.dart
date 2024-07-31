@@ -7,8 +7,10 @@ import 'package:devjang_cs/services/auth_service.dart';
 import 'package:devjang_cs/services/chat_services.dart';
 import 'package:devjang_cs/services/classification_platform.dart';
 import 'package:devjang_cs/services/user_services.dart';
+import 'package:devjang_cs/widgets/toast_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
 class SelectTypePage extends StatefulWidget {
@@ -63,7 +65,7 @@ class _SelectTypePageState extends State<SelectTypePage> {
           child: GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2, //1 개의 행에 보여줄 item 개수
-                childAspectRatio: 3 / 1, //item 의 가로, 세로의 비율
+                childAspectRatio: 3 / 1.2, //item 의 가로, 세로의 비율
                 mainAxisSpacing: 30, //수직 Padding
                 crossAxisSpacing: 100, //수평 Padding
               ),
@@ -141,6 +143,17 @@ class _SelectTypePageState extends State<SelectTypePage> {
                     ),textAlign: TextAlign.center,),
                   ],
                 ),
+                const Spacer(),
+                GestureDetector(
+                  onTap: () {
+                    ToastWidget().showToast('준비중인 기능입니다!');
+                  },
+                  child: SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: Image.asset("assets/icons/dots.png"),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 10,),
@@ -149,6 +162,7 @@ class _SelectTypePageState extends State<SelectTypePage> {
               color: _colorsModel.gr2,
             ),textAlign: TextAlign.center,),
             !isWeb ? const SizedBox(height: 20,) : const Spacer(),  // 넓힐 수 있는 최대 간격을 넓혀줌
+            const SizedBox(height: 10,),
             Padding(
               padding: const EdgeInsets.only(left: 40, right: 40),
               child: GestureDetector(
@@ -172,6 +186,33 @@ class _SelectTypePageState extends State<SelectTypePage> {
                         fontWeight: FontWeight.bold,
                       ),),
                     ),),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10,),
+            Padding(
+              padding: const EdgeInsets.only(left: 40, right: 40),
+              child: GestureDetector(
+                onTap: () {
+                  _pageProvider.updateChatModel(chatModel);
+                  _pageProvider.updatePage(2);
+                },
+                child: MouseRegion( // 마우스를 감지하여 마우스 모양을 띄워줌
+                  cursor: SystemMouseCursors.click,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: _colorsModel.wh,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.only(top: 10, bottom: 10),
+                      child: Center(
+                        child: Text("View Evaluation History", style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),),
+                      ),),
                   ),
                 ),
               ),
@@ -200,4 +241,6 @@ class _SelectTypePageState extends State<SelectTypePage> {
       });
     }
   }
+
+
 }

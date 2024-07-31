@@ -68,7 +68,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(bottom: 40, left: 60, right: 60),
+            padding: isWeb ? const EdgeInsets.only(bottom: 40, left: 60, right: 60) : const EdgeInsets.only(bottom: 40, left: 15, right: 15),
             child: Row(
               children: [
                 Expanded(
@@ -148,7 +148,7 @@ class _ChatScreenState extends State<ChatScreen> {
   // 서버에 저장된 대화기록을 불러오는 함수
   // 이전대화까지 포함하여 GPT API통신시 함께 보낼 수 있다
   Future<void> _loadChatMessages() async {
-    List<Map<String, dynamic>> messages = await _chatServices.loadChatMessages(key: _pageProvider.selectChatModel.key, uid: _userModel.uid ?? "");
+    List<Map<String, dynamic>> messages = await _chatServices.loadChatMessages(chatModelKey: _pageProvider.selectChatModel.key, uid: _userModel.uid ?? "");
     print('messages ${messages}');
     setState(() {
       _messages = messages;
@@ -189,10 +189,11 @@ class _ChatScreenState extends State<ChatScreen> {
       });
 
     });
-
-    await _chatServices.saveChatMessage(key: _pageProvider.selectChatModel.key, uid: _userModel.uid ?? "", role: 'assistant',message:  assistantMessage);
-
     _scrollToBottom();
+    await _chatServices.saveChatMessage(key: _pageProvider.selectChatModel.key, uid: _userModel.uid ?? "", role: 'assistant',message:  assistantMessage);
+    if (assistantMessage.contains('토론이 종료되었') || assistantMessage.contains('대화가 종료되었')) {
+      ChatServices().endConversation(_pageProvider.selectChatModel.key, _userModel.uid ?? "", _userModel.nm ?? "", _pageProvider.gptKey);
+    }
   }
 
   // 유저가 메세지 입력 후 자동으로 아래로 스크롤되게 하여 메세지가 가려지지않도록 함

@@ -1,5 +1,6 @@
 
 import 'package:devjang_cs/models/colors_model.dart';
+import 'package:devjang_cs/models/evaluation_result.dart';
 import 'package:devjang_cs/models/user_model.dart';
 import 'package:devjang_cs/providers/page_provider.dart';
 import 'package:devjang_cs/services/auth_service.dart';
