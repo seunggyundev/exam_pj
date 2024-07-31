@@ -7,6 +7,7 @@ import 'package:devjang_cs/services/auth_service.dart';
 import 'package:devjang_cs/services/classification_platform.dart';
 import 'package:devjang_cs/services/size_calculate.dart';
 import 'package:devjang_cs/services/user_services.dart';
+import 'package:devjang_cs/widgets/dialogs.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

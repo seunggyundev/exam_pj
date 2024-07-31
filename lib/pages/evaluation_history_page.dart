@@ -51,19 +51,23 @@ class _EvaluationHistoryPageState extends State<EvaluationHistoryPage> {
     // 가로 사이즈에 따라서 플랫폼 구별
     bool isWeb = ClassificationPlatform().classifyWithScreenSize(context: context) == 2;
 
+    print('_results ${_results}');
     return Stack(
       children: [
         ListView(
           children: [
             const SizedBox(height: 15,),
-            selectDateWidget(screenWidth, isWeb),
-            const SizedBox(height: 15,),
-            _comment.isEmpty ? Container() : Text("${_comment}", style: const TextStyle(
-              fontSize: 20,
-              color: Colors.black,
-            ), textAlign: TextAlign.center,),
+            _pageProvider.isFromChat ? Container() : selectDateWidget(screenWidth, isWeb),
+            _pageProvider.isFromChat ? Container() : const SizedBox(height: 15,),
+            _comment.isEmpty ? Container() : Padding(
+              padding: const EdgeInsets.only(left: 60, right: 60),
+              child: Text("${_comment}", style: const TextStyle(
+                fontSize: 20,
+                color: Colors.black,
+              ), textAlign: TextAlign.center, ),
+            ),
             _comment.isEmpty ? Container() : const SizedBox(height: 15,),
-            _results.isEmpty ? Center(
+            _results.isEmpty ? _comment.isNotEmpty ? Container() : Center(
               child: Padding(
                 padding: const EdgeInsets.only(top: 60.0),
                 child: Text("아직 대화 기록이 없습니다", style: TextStyle(
@@ -279,29 +283,54 @@ class _EvaluationHistoryPageState extends State<EvaluationHistoryPage> {
       setState(() {
         _userModel = resList.last;
       });
-      List historyResList = await ChatServices().getEvaluationHistory(uid: _userModel.uid, chatModelKey: _pageProvider.selectChatModel.key);
-      if (historyResList.first) {
-        Map historyMap = historyResList.last;
-        DateTime? selectTime; // {Datetime time : {'comment': , 'result': List<EvaluationResult>}}
-        String comment = '';
-        List<EvaluationResult> results = [];
 
-        if (historyMap.isNotEmpty) {
-          selectTime = historyMap.keys.toList().first;
-
-          Map dataMap = historyMap[selectTime] ?? {};
-          comment = dataMap['comment'] ?? '';
-          results = dataMap['result'];
+      if (_pageProvider.isFromChat) {
+        List chatEvaluations = _pageProvider.chatEvaluations;
+        if (chatEvaluations.isNotEmpty) {
+          setState(() {
+            _comment = chatEvaluations.first;
+            _results = chatEvaluations.last;
+          });
         }
-
-        setState(() {
-          _historyMap = historyMap;
-          _selectTime = selectTime;
-          _comment = comment;
-          _results = results;
-        });
       } else {
-        Dialogs().onlyContentOneActionDialog(context: context, content: '기록 로드 중 오류\n${historyResList.last}', firstText: '확인');
+        List historyResList = await ChatServices().getEvaluationHistory(uid: _userModel.uid, chatModelKey: _pageProvider.selectChatModel.key);
+        if (historyResList.first) {
+          Map historyMap = historyResList.last; // {Datetime time : {'comment': , 'result': List<EvaluationResult>}}
+
+          // 키인 Datetime을 리스트로 변환하여 정렬
+          List timeList = historyMap.keys.toList();
+          timeList.sort((a, b) => b.compareTo(a)); // 최신순으로 정렬
+
+          // 정렬된 시간 리스트를 이용하여 새로운 Map 생성
+          Map<DateTime, Map<String, dynamic>> tempHistoryMap = {};
+          for (DateTime time in timeList) {
+            tempHistoryMap[time] = historyMap[time];
+          }
+
+          // 기존 historyMap을 정렬된 tempHistoryMap으로 대체
+          historyMap = tempHistoryMap;
+
+          DateTime? selectTime;
+          String comment = '';
+          List<EvaluationResult> results = [];
+
+          if (historyMap.isNotEmpty) {
+            selectTime = historyMap.keys.toList().first;
+
+            Map dataMap = historyMap[selectTime] ?? {};
+            comment = dataMap['comment'] ?? '';
+            results = dataMap['result'];
+          }
+
+          setState(() {
+            _historyMap = historyMap;
+            _selectTime = selectTime;
+            _comment = comment;
+            _results = results;
+          });
+        } else {
+          Dialogs().onlyContentOneActionDialog(context: context, content: '기록 로드 중 오류\n${historyResList.last}', firstText: '확인');
+        }
       }
     }
 

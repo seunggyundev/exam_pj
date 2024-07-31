@@ -6,6 +6,7 @@ import 'package:devjang_cs/services/auth_service.dart';
 import 'package:devjang_cs/services/chat_services.dart';
 import 'package:devjang_cs/services/classification_platform.dart';
 import 'package:devjang_cs/services/user_services.dart';
+import 'package:devjang_cs/widgets/dialogs.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -191,9 +192,22 @@ class _ChatScreenState extends State<ChatScreen> {
     });
     _scrollToBottom();
     await _chatServices.saveChatMessage(key: _pageProvider.selectChatModel.key, uid: _userModel.uid ?? "", role: 'assistant',message:  assistantMessage);
-    if (assistantMessage.contains('토론이 종료되었') || assistantMessage.contains('대화가 종료되었')) {
-      ChatServices().endConversation(_pageProvider.selectChatModel.key, _userModel.uid ?? "", _userModel.nm ?? "", _pageProvider.gptKey);
 
+    /// 대화종료 관련
+    if (assistantMessage.contains('토론이 종료되었') || assistantMessage.contains('대화가 종료되었')) {
+      List resList = await ChatServices().endConversation(_pageProvider.selectChatModel.key, _userModel.uid ?? "", _userModel.nm ?? "", _pageProvider.gptKey);
+
+      bool isGo = await Dialogs().showDialogWithTimer(context);
+
+      if (isGo) {
+        if (resList.first) {
+          _pageProvider.updateIsFromChat(true);
+          _pageProvider.updateChatEvaluations(resList.last);
+          _pageProvider.updatePage(2);
+        } else {
+          Dialogs().onlyContentOneActionDialog(context: context, content: '분석 중 오류\n${resList.last}', firstText: '확인');
+        }
+      }
     }
   }
 

@@ -23,7 +23,6 @@ class ChatServices {
             {'role': 'system', 'content': prompt},
             ...messages
           ],
-          'max_tokens': 150, // 선택적 매개변수
           'temperature': 0.6, // 선택적 매개변수
         }),
       );
@@ -197,7 +196,6 @@ class ChatServices {
               {'role': 'system', 'content': evaluatePrompt},
               {'role': 'user', 'content': context}
             ],
-            'max_tokens': 150,
             'temperature': 0.6,
           }),
         );

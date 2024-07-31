@@ -198,6 +198,7 @@ class _SelectTypePageState extends State<SelectTypePage> {
               padding: const EdgeInsets.only(left: 40, right: 40),
               child: GestureDetector(
                 onTap: () async {
+                  _pageProvider.updateIsFromChat(false);
                   _pageProvider.updateChatModel(chatModel);
                   _pageProvider.updatePage(2);
                 },

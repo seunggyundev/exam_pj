@@ -1,6 +1,8 @@
 import 'package:devjang_cs/models/colors_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'package:percent_indicator/percent_indicator.dart';
 
 class Dialogs {
   ColorsModel _colorsModel = ColorsModel();
@@ -124,4 +126,53 @@ class Dialogs {
         });
   }
 
+  Future<bool> showDialogWithTimer(BuildContext context) async {
+    bool isCancelled = false;
+
+    var res = await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        // 5초 후에 페이지 이동을 위한 타이머 시작
+        Timer(Duration(seconds: 5), () {
+          if (!isCancelled) {
+            Navigator.pop(context, true); // 다이얼로그 닫기
+          }
+        });
+        return AlertDialog(
+          backgroundColor: _colorsModel.wh,
+          content: CircularPercentIndicator(
+            radius: 130.0,
+            lineWidth: 10.0,
+            animation: true,
+            percent: 1,
+            animationDuration: 5000,
+            backgroundColor: _colorsModel.wh,
+            center: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "5초 후에 평가결과 페이지로 이동합니다",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: _colorsModel.gr1),
+                ),
+              ],
+            ),
+            circularStrokeCap: CircularStrokeCap.round,
+            progressColor: _colorsModel.main,
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('취소'),
+              onPressed: () {
+                isCancelled = true;
+                Navigator.pop(context, false); // 다이얼로그 닫기
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    return res ?? false;
+  }
 }

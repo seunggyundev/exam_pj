@@ -59,7 +59,7 @@ class EvaluationResult {
       return [comment, results];
     } catch(e) {
       print("EvaluationResult error : $e");
-      return [];
+      return [content, List<EvaluationResult>.from([])];
     }
   }
 }

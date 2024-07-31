@@ -3,6 +3,22 @@ import 'package:flutter/cupertino.dart';
 
 class PageProvider extends ChangeNotifier {
 
+  List _chatEvaluations = [];   // 채팅창이 종료되고 넘어온 데이터
+  List get chatEvaluations => _chatEvaluations;
+
+  updateChatEvaluations(List chatEvaluations) {
+    _chatEvaluations = chatEvaluations;
+    notifyListeners();
+  }
+
+  bool _isFromChat = false;  // 채팅창으로부터 넘어오면 UI가 변경됨
+  bool get isFromChat => _isFromChat;
+
+  updateIsFromChat(bool isFromChat) {
+    _isFromChat = isFromChat;
+    notifyListeners();
+  }
+
   bool _isRefresh = false;
   bool get isRefresh => _isRefresh;
 
