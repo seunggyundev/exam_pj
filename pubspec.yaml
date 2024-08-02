@@ -26,9 +26,11 @@ dev_dependencies:
   fluttertoast: ^8.2.1
   dropdown_button2: ^1.4.0
   percent_indicator: ^4.2.3
-  syncfusion_flutter_charts: ^20.4.46
   flutter_quill: ^9.3.1
   flutter_secure_storage: ^5.0.2
+  flutter_cache_manager: ^3.3.0
+  syncfusion_flutter_pdfviewer: ^26.2.7
+  syncfusion_flutter_charts: ^26.2.7
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
