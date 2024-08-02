@@ -1,4 +1,5 @@
 import 'package:devjang_cs/models/user_model.dart';
+import 'package:devjang_cs/pages/argument_home.dart';
 import 'package:devjang_cs/pages/chat_screen.dart';
 import 'package:devjang_cs/pages/debate_history_page.dart';
 import 'package:devjang_cs/pages/login_page.dart';
@@ -95,6 +96,8 @@ class _HomePageState extends State<HomePage> {
             child: const LoginPage());
       } else if (_pageProvider.page == 4) {
         return const StressHistoryPage();
+      } else if (_pageProvider.page == 5) {
+        return const ArgumentHome();
       }
       return Container();
     } else {

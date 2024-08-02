@@ -27,6 +27,8 @@ dev_dependencies:
   dropdown_button2: ^1.4.0
   percent_indicator: ^4.2.3
   syncfusion_flutter_charts: ^20.4.46
+  flutter_quill: ^9.3.1
+  flutter_secure_storage: ^5.0.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -41,6 +43,7 @@ flutter:
   assets:
     - assets/
     - assets/icons/
+    - assets/docs/
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

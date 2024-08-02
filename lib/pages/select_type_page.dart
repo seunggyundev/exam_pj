@@ -172,7 +172,12 @@ class _SelectTypePageState extends State<SelectTypePage> {
                 onTap: () {
                   // 채팅화면에서 사용할 모델 업데이트
                   _pageProvider.updateChatModel(chatModel);
-                  _pageProvider.updatePage(1);
+                  if (chatModel.type == "argument") {
+                    _pageProvider.updateSelectDocNm('국내 인공지능 법률 초기 입법'); // for test
+                    _pageProvider.updatePage(5);
+                  } else {
+                    _pageProvider.updatePage(1);
+                  }
                 },
                 child: MouseRegion( // 마우스를 감지하여 마우스 모양을 띄워줌
                   cursor: SystemMouseCursors.click,
