@@ -200,7 +200,12 @@ class _SelectTypePageState extends State<SelectTypePage> {
                 onTap: () async {
                   _pageProvider.updateIsFromChat(false);
                   _pageProvider.updateChatModel(chatModel);
-                  _pageProvider.updatePage(2);
+
+                  if (chatModel.type == "debate") {
+                    _pageProvider.updatePage(2);
+                  } else if (chatModel.type == "stress"){
+                    _pageProvider.updatePage(4);
+                  }
                 },
                 child: MouseRegion( // 마우스를 감지하여 마우스 모양을 띄워줌
                   cursor: SystemMouseCursors.click,

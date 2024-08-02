@@ -1,5 +1,5 @@
 import 'package:devjang_cs/models/colors_model.dart';
-import 'package:devjang_cs/models/evaluation_result.dart';
+import 'package:devjang_cs/models/debate_result.dart';
 import 'package:devjang_cs/models/user_model.dart';
 import 'package:devjang_cs/providers/page_provider.dart';
 import 'package:devjang_cs/services/auth_service.dart';
@@ -13,14 +13,14 @@ import 'package:provider/provider.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:intl/intl.dart';
 
-class EvaluationHistoryPage extends StatefulWidget {
-  const EvaluationHistoryPage({Key? key}) : super(key: key);
+class DebateHistoryPage extends StatefulWidget {
+  const DebateHistoryPage({Key? key}) : super(key: key);
 
   @override
-  State<EvaluationHistoryPage> createState() => _EvaluationHistoryPageState();
+  State<DebateHistoryPage> createState() => _DebateHistoryPageState();
 }
 
-class _EvaluationHistoryPageState extends State<EvaluationHistoryPage> {
+class _DebateHistoryPageState extends State<DebateHistoryPage> {
 
   PageProvider _pageProvider = PageProvider();
   final ColorsModel _colorsModel = ColorsModel();
@@ -28,7 +28,7 @@ class _EvaluationHistoryPageState extends State<EvaluationHistoryPage> {
   Map _historyMap = {};  // {Datetime time : {'comment': , 'result': List<EvaluationResult>}}
   DateTime? _selectTime;
   String _comment = '';
-  List<EvaluationResult> _results = [];
+  List<DebateResult> _results = [];
   bool _loading = false;
 
   // initState는 현재 코드 클래스 호출시 최초 1회 호출되는 함수이다
@@ -89,7 +89,7 @@ class _EvaluationHistoryPageState extends State<EvaluationHistoryPage> {
     );
   }
 
-  Widget evaluateWidget(screenWidth, isWeb, EvaluationResult evaluationResult) {
+  Widget evaluateWidget(screenWidth, isWeb, DebateResult evaluationResult) {
 
     Color evaluationColor = _colorsModel.blue;
 
@@ -245,7 +245,7 @@ class _EvaluationHistoryPageState extends State<EvaluationHistoryPage> {
                   value: _selectTime,
                   onChanged: (value) {
                     String comment = '';
-                    List<EvaluationResult> results = [];
+                    List<DebateResult> results = [];
 
                     if (_historyMap.isNotEmpty) {
                       Map dataMap = _historyMap[value] ?? {};
@@ -293,7 +293,7 @@ class _EvaluationHistoryPageState extends State<EvaluationHistoryPage> {
           });
         }
       } else {
-        List historyResList = await ChatServices().getEvaluationHistory(uid: _userModel.uid, chatModelKey: _pageProvider.selectChatModel.key);
+        List historyResList = await ChatServices().getDebateHistory(uid: _userModel.uid, chatModelKey: _pageProvider.selectChatModel.key);
         if (historyResList.first) {
           Map historyMap = historyResList.last; // {Datetime time : {'comment': , 'result': List<EvaluationResult>}}
 
@@ -312,7 +312,7 @@ class _EvaluationHistoryPageState extends State<EvaluationHistoryPage> {
 
           DateTime? selectTime;
           String comment = '';
-          List<EvaluationResult> results = [];
+          List<DebateResult> results = [];
 
           if (historyMap.isNotEmpty) {
             selectTime = historyMap.keys.toList().first;

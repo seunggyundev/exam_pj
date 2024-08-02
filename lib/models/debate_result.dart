@@ -1,10 +1,10 @@
-class EvaluationResult {
+class DebateResult {
   var category;  // String
   var evaluation;  // String
   var details;  // String
   var isSuccess;  // 평가가 이뤄졌는지 여부
 
-  EvaluationResult({
+  DebateResult({
     this.category,
     this.evaluation,
     this.details,
@@ -13,7 +13,7 @@ class EvaluationResult {
 
   List returnModels(String content) {
     try {
-      List<EvaluationResult> results = [];
+      List<DebateResult> results = [];
       // 주석 부분 추출
       int firstCategoryIndex = content.indexOf('[');
       String comment = content.substring(0, firstCategoryIndex).trim();
@@ -30,7 +30,7 @@ class EvaluationResult {
         String evaluation = match.group(3)!.trim();
         String details = match.group(2)!.trim() + "\n" + match.group(4)!.trim();
 
-        results.add(EvaluationResult(
+        results.add(DebateResult(
           category: category,
           evaluation: evaluation,
           details: details,
@@ -40,7 +40,7 @@ class EvaluationResult {
 
       // matches가 비어있는 경우, 평가 결과가 제대로 파싱되지 않았을 가능성이 있음
       if (results.isEmpty) {
-        results.add(EvaluationResult(
+        results.add(DebateResult(
           isSuccess: false,
           details: content,
           category: '',
@@ -59,7 +59,7 @@ class EvaluationResult {
       return [comment, results];
     } catch(e) {
       print("EvaluationResult error : $e");
-      return [content, List<EvaluationResult>.from([])];
+      return [content, List<DebateResult>.from([])];
     }
   }
 }

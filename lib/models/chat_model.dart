@@ -15,14 +15,16 @@ class ChatModel {
   var key;  // 해당 키로 채팅데이터를 가져옴
   var explain;  // 해당 타입에 대한 설명
   var img;  // image
+  var type; // stress, debate
 
-  ChatModel({this.explain, this.key, this.img,});
+  ChatModel({this.explain, this.key, this.img, this.type,});
 
   ChatModel returnModel(Map dataMap) {
     return ChatModel(
       key: dataMap['key'],
       explain: dataMap['explain'],
       img: dataMap['img'],
+        type: dataMap['type'],
     );
   }
 }

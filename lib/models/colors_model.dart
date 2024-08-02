@@ -35,4 +35,5 @@ class ColorsModel {
   final Color blue = const Color(0xff001AFF);
   final Color orange = const Color(0xffFF7A00);
   final Color red = const Color(0xffFF0000);
+  final Color titleBox = const Color(0xffECE6F0);
 }

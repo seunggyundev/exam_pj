@@ -1,8 +1,9 @@
 import 'package:devjang_cs/models/user_model.dart';
 import 'package:devjang_cs/pages/chat_screen.dart';
-import 'package:devjang_cs/pages/evaluation_history_page.dart';
+import 'package:devjang_cs/pages/debate_history_page.dart';
 import 'package:devjang_cs/pages/login_page.dart';
 import 'package:devjang_cs/pages/select_type_page.dart';
+import 'package:devjang_cs/pages/stress_history_page.dart';
 import 'package:devjang_cs/providers/page_provider.dart';
 import 'package:devjang_cs/providers/validate_provider.dart';
 import 'package:devjang_cs/services/auth_service.dart';
@@ -85,13 +86,15 @@ class _HomePageState extends State<HomePage> {
         // chat screen
         return const ChatScreen();
       } else if (_pageProvider.page == 2) {
-      return const EvaluationHistoryPage();
-    } else if (_pageProvider.page == 3) {
+        return const DebateHistoryPage();
+      } else if (_pageProvider.page == 3) {
         return MultiProvider(
             providers: [
               ChangeNotifierProvider(create: (_) => ValidateProvider()),
             ],
             child: const LoginPage());
+      } else if (_pageProvider.page == 4) {
+        return const StressHistoryPage();
       }
       return Container();
     } else {

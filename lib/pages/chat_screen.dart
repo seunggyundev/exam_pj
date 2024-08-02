@@ -195,17 +195,34 @@ class _ChatScreenState extends State<ChatScreen> {
 
     /// 대화종료 관련
     if (assistantMessage.contains('토론이 종료되었') || assistantMessage.contains('대화가 종료되었')) {
-      List resList = await ChatServices().endConversation(_pageProvider.selectChatModel.key, _userModel.uid ?? "", _userModel.nm ?? "", _pageProvider.gptKey);
 
-      bool isGo = await Dialogs().showDialogWithTimer(context);
+      if (_pageProvider.selectChatModel.type == 'stress') {
+        List resList = await ChatServices().endStressConversation(_pageProvider.selectChatModel.key, _userModel.uid ?? "", _userModel.nm ?? "", _pageProvider.gptKey);
+        print('stress resList ${resList}');
+        bool isGo = await Dialogs().showDialogWithTimer(context);
 
-      if (isGo) {
-        if (resList.first) {
-          _pageProvider.updateIsFromChat(true);
-          _pageProvider.updateChatEvaluations(resList.last);
-          _pageProvider.updatePage(2);
-        } else {
-          Dialogs().onlyContentOneActionDialog(context: context, content: '분석 중 오류\n${resList.last}', firstText: '확인');
+        if (isGo) {
+          if (resList.first) {
+            // _pageProvider.updateIsFromChat(true);
+            // _pageProvider.updateChatEvaluations(resList.last);
+            _pageProvider.updatePage(4);
+          } else {
+            Dialogs().onlyContentOneActionDialog(context: context, content: '분석 중 오류\n${resList.last}', firstText: '확인');
+          }
+        }
+      } else {
+        List resList = await ChatServices().endDebateConversation(_pageProvider.selectChatModel.key, _userModel.uid ?? "", _userModel.nm ?? "", _pageProvider.gptKey);
+
+        bool isGo = await Dialogs().showDialogWithTimer(context);
+
+        if (isGo) {
+          if (resList.first) {
+            _pageProvider.updateIsFromChat(true);
+            _pageProvider.updateChatEvaluations(resList.last);
+            _pageProvider.updatePage(2);
+          } else {
+            Dialogs().onlyContentOneActionDialog(context: context, content: '분석 중 오류\n${resList.last}', firstText: '확인');
+          }
         }
       }
     }
