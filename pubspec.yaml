@@ -22,10 +22,11 @@ dev_dependencies:
   firebase_core: ^3.1.1
   firebase_auth: ^5.1.1
   firebase_database: ^11.0.2
-  intl: ^0.17.0
+  intl: ^0.18.1
   fluttertoast: ^8.2.1
   dropdown_button2: ^1.4.0
   percent_indicator: ^4.2.3
+  syncfusion_flutter_charts: ^20.4.46
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

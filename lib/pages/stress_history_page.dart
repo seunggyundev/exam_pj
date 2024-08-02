@@ -1,7 +1,10 @@
 import 'dart:ui';
 
+import 'package:devjang_cs/models/chart_data.dart';
 import 'package:devjang_cs/models/colors_model.dart';
-import 'package:devjang_cs/models/debate_result.dart';
+import 'package:flutter/painting.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 import 'package:devjang_cs/models/stress_result.dart';
 import 'package:devjang_cs/models/user_model.dart';
 import 'package:devjang_cs/providers/page_provider.dart';
@@ -38,6 +41,7 @@ class _StressHistoryPageState extends State<StressHistoryPage> {
   bool _loading = false;
   String _averageStressDescription = "";
   double _averageScore = 0.0;
+  List<ChartData> _chartData = [];
 
   // initState는 현재 코드 클래스 호출시 최초 1회 호출되는 함수이다
   // 현재 코드 페이지를 호출할 때 가장 먼저 작업할 함수들을 넣어주면 된다
@@ -89,6 +93,8 @@ class _StressHistoryPageState extends State<StressHistoryPage> {
   }
 
   Widget historyWidget(screenWidth, screenHeight, isWeb) {
+    Map groupDetails = groupDetailsByCategory(_recentResult.scores ?? []);
+
     return Padding(
       padding: isWeb ? const EdgeInsets.only(left: 60, right: 60) : const EdgeInsets.only(left: 15, right: 15),
       child: Column(
@@ -112,9 +118,62 @@ class _StressHistoryPageState extends State<StressHistoryPage> {
             ),
           ),
           const SizedBox(height: 20,),
+          SfCartesianChart(
+            title: ChartTitle(
+                text: '학업 스트레스 변화 추이',
+                textStyle: const TextStyle(
+              fontWeight: FontWeight.bold,
+            )),
+            primaryXAxis: DateTimeAxis(
+              majorGridLines: const MajorGridLines(width: 0),
+              labelAlignment: LabelAlignment.center,  // 레이블을 중앙에 정렬
+              title: AxisTitle(text: '날짜', textStyle: const TextStyle(
+                fontWeight: FontWeight.bold,
+              )),
+            ),
+            primaryYAxis: NumericAxis(
+              title: AxisTitle(text: '스트레스 수준', textStyle: const TextStyle(
+                fontWeight: FontWeight.bold,
+              )),
+              majorGridLines: const MajorGridLines(width: 0),
+              minimum: 1,
+              maximum: 5,
+              interval: 1,
+              axisLabelFormatter: (AxisLabelRenderDetails details) {
+                switch (details.value.toInt()) {
+                  case 1:
+                    return ChartAxisLabel('매우 낮음', const TextStyle(color: Colors.black));
+                  case 2:
+                    return ChartAxisLabel('낮음', const TextStyle(color: Colors.black));
+                  case 3:
+                    return ChartAxisLabel('중간', const TextStyle(color: Colors.black));
+                  case 4:
+                    return ChartAxisLabel('높음', const TextStyle(color: Colors.black));
+                  case 5:
+                    return ChartAxisLabel('매우 높음', const TextStyle(color: Colors.black));
+                  default:
+                    return ChartAxisLabel('', const TextStyle(color: Colors.black));
+                }
+              },
+            ),
+            series: <CartesianSeries>[
+              LineSeries<ChartData, DateTime>(
+                dataSource: _chartData,
+                xValueMapper: (ChartData data, _) => data.date,
+                yValueMapper: (ChartData data, _) => data.stressLevel,
+                dataLabelSettings: const DataLabelSettings(isVisible: false),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20,),
           selectDateWidget(screenWidth, isWeb),
+          const SizedBox(height: 20),
+          categoryWidget(detail: groupDetails['스트레스 원인'], isWeb: isWeb, screenWidth: screenWidth, isHistory: true),
+          const SizedBox(height: 20,),
+          symptomWidget(detail: groupDetails['스트레스 증상'], isWeb: isWeb, screenWidth: screenWidth, isHistory: true),
+          const SizedBox(height: 20,),
+          solutionWidget(detail: groupDetails['대처 방안'], isWeb: isWeb, screenWidth: screenWidth, isHistory: true),
           const SizedBox(height: 60),
-
         ],
       ),
     );
@@ -213,23 +272,16 @@ class _StressHistoryPageState extends State<StressHistoryPage> {
             ],
           ),
           const SizedBox(height: 20,),
-          isWeb? Row(
+          Row(
             children: [
               categoryWidget(
                 detail: groupDetails['스트레스 원인'],
                 isWeb: isWeb,
                 screenWidth: screenWidth,
+                isHistory: false,
               ),
-              symptomWidget(detail: groupDetails['스트레스 증상'], isWeb: isWeb, screenWidth: screenWidth),
-              solutionWidget(detail: groupDetails['대처 방안'], isWeb: isWeb, screenWidth: screenWidth),
-            ],
-          ) : Column(
-            children: [
-              categoryWidget(
-                detail: groupDetails['스트레스 원인'],
-                isWeb: isWeb,
-                screenWidth: screenWidth,
-              ),
+              symptomWidget(detail: groupDetails['스트레스 증상'], isWeb: isWeb, screenWidth: screenWidth,isHistory: false,),
+              solutionWidget(detail: groupDetails['대처 방안'], isWeb: isWeb, screenWidth: screenWidth,isHistory: false,),
             ],
           ),
           const SizedBox(height: 16),
@@ -256,12 +308,12 @@ class _StressHistoryPageState extends State<StressHistoryPage> {
     required String detail,
     required bool isWeb,
     required screenWidth,
+    required bool isHistory,
   }) {
 
-    return Padding(
-      padding: isWeb ? const EdgeInsets.only(left: 60, right: 60, bottom: 30) : const EdgeInsets.only(left: 15, right: 15, bottom: 10),
-      child: Container(
-        width: screenWidth * 0.2,
+    if (isHistory) {
+      return Container(
+        width: screenWidth,
         decoration: BoxDecoration(
           color: _colorsModel.gr4,
           boxShadow: [
@@ -276,56 +328,107 @@ class _StressHistoryPageState extends State<StressHistoryPage> {
         child: Padding(
           padding:  const EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: screenWidth * 0.2,
-                decoration: BoxDecoration(
-                  color: _colorsModel.titleBox,
-                ),
-                child: const Padding(
-                  padding: EdgeInsets.only(top: 10, bottom: 10),
-                  child: Center(
-                    child: Text("스트레스 원인", style: TextStyle(
+              const Text("• 스트레스 원인", style: TextStyle(
+                fontSize: 18,
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),),
+              const SizedBox(height: 15,),
+              Row(
+                children: [
+                  SizedBox(
+                    width: SizeCalculate().widthCalculate(screenWidth, 154),
+                    height: 139,
+                    child: Image.asset("assets/icons/board.png"),
+                  ),
+                  const SizedBox(width: 15,),
+                  SizedBox(
+                    width: screenWidth * 0.5,
+                    child: Text(
+                      detail.isEmpty ? "많은 어려움을 겪고있지 않아요" :
+                      "${detail}으로 인해 어려움을 겪고있어요", style: const TextStyle(
                       fontSize: 16,
                       color: Colors.black,
-                      fontWeight: FontWeight.bold,
                     ),),
                   ),
-                ),
-              ),
-              const SizedBox(height: 15,),
-              SizedBox(
-                width: screenWidth * 0.2,
-                height: 156,
-                child: Image.asset("assets/icons/board.png"),
-              ),
-              const SizedBox(height: 15,),
-              SizedBox(
-                width: screenWidth * 0.4,
-                child: Text(
-                  detail.isEmpty ? "많은 어려움을 겪고있지 않아요" :
-                  "${detail}으로 인해 어려움을 겪고있어요", style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.black,
-                ),),
+                ],
               ),
             ],
           ),
         ),
-      ),
-    );
+      );
+    } else {
+      return Padding(
+        padding: isWeb ? const EdgeInsets.only(left: 60, right: 60, bottom: 30) : const EdgeInsets.only(left: 15, right: 15, bottom: 10),
+        child: Container(
+          width: screenWidth * 0.2,
+          decoration: BoxDecoration(
+            color: _colorsModel.gr4,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.2),
+                spreadRadius: 2,
+                blurRadius: 4,
+                offset: Offset(0, 1), // changes position of shadow
+              ),
+            ],
+          ),
+          child: Padding(
+            padding:  const EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
+            child: Column(
+              children: [
+                Container(
+                  width: screenWidth * 0.2,
+                  decoration: BoxDecoration(
+                    color: _colorsModel.titleBox,
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.only(top: 10, bottom: 10),
+                    child: Center(
+                      child: Text("스트레스 원인", style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15,),
+                SizedBox(
+                  width: screenWidth * 0.2,
+                  height: 156,
+                  child: Image.asset("assets/icons/board.png"),
+                ),
+                const SizedBox(height: 15,),
+                SizedBox(
+                  width: screenWidth * 0.4,
+                  child: Text(
+                    detail.isEmpty ? "많은 어려움을 겪고있지 않아요" :
+                    "${detail}으로 인해 어려움을 겪고있어요", style: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
   }
 
   Widget symptomWidget({
     required String detail,
     required bool isWeb,
     required screenWidth,
+    required bool isHistory,
 }) {
 
-    return Padding(
-      padding: isWeb ? const EdgeInsets.only(left: 60, right: 60, bottom: 30) : const EdgeInsets.only(left: 15, right: 15, bottom: 10),
-      child: Container(
-        width: screenWidth * 0.2,
+    if (isHistory) {
+      return Container(
+        width: screenWidth,
         decoration: BoxDecoration(
           color: _colorsModel.gr4,
           boxShadow: [
@@ -340,56 +443,107 @@ class _StressHistoryPageState extends State<StressHistoryPage> {
         child: Padding(
           padding:  const EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: screenWidth * 0.2,
-                decoration: BoxDecoration(
-                  color: _colorsModel.titleBox,
-                ),
-                child: const Padding(
-                  padding: EdgeInsets.only(top: 10, bottom: 10),
-                  child: Center(
-                    child: Text("스트레스 증상", style: TextStyle(
+              const Text("• 스트레스 증상", style: TextStyle(
+                fontSize: 18,
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),),
+              const SizedBox(height: 15,),
+              Row(
+                children: [
+                  SizedBox(
+                    width: SizeCalculate().widthCalculate(screenWidth, 154),
+                    height: 139,
+                    child: Image.asset("assets/icons/headache.png"),
+                  ),
+                  const SizedBox(width: 15,),
+                  SizedBox(
+                    width: screenWidth * 0.5,
+                    child: Text(
+                      detail.isEmpty ? "스트레스 증상을 겪고있지 않아요" :
+                      "$detail의 증상을 겪고 있어요", style: const TextStyle(
                       fontSize: 16,
                       color: Colors.black,
-                      fontWeight: FontWeight.bold,
                     ),),
                   ),
-                ),
-              ),
-              const SizedBox(height: 15,),
-              SizedBox(
-                width: screenWidth * 0.2,
-                height: 156,
-                child: Image.asset("assets/icons/headache.png"),
-              ),
-              const SizedBox(height: 15,),
-              SizedBox(
-                width: screenWidth * 0.4,
-                child: Text(
-                  detail.isEmpty ? "스트레스 증상을 겪고있지 않아요" :
-                  "$detail의 증상을 겪고 있어요", style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.black,
-                ),),
+                ],
               ),
             ],
           ),
         ),
-      ),
-    );
+      );
+    } else {
+      return Padding(
+        padding: isWeb ? const EdgeInsets.only(left: 60, right: 60, bottom: 30) : const EdgeInsets.only(left: 15, right: 15, bottom: 10),
+        child: Container(
+          width: screenWidth * 0.2,
+          decoration: BoxDecoration(
+            color: _colorsModel.gr4,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.2),
+                spreadRadius: 2,
+                blurRadius: 4,
+                offset: const Offset(0, 1), // changes position of shadow
+              ),
+            ],
+          ),
+          child: Padding(
+            padding:  const EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
+            child: Column(
+              children: [
+                Container(
+                  width: screenWidth * 0.2,
+                  decoration: BoxDecoration(
+                    color: _colorsModel.titleBox,
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.only(top: 10, bottom: 10),
+                    child: Center(
+                      child: Text("스트레스 증상", style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15,),
+                SizedBox(
+                  width: screenWidth * 0.2,
+                  height: 156,
+                  child: Image.asset("assets/icons/headache.png"),
+                ),
+                const SizedBox(height: 15,),
+                SizedBox(
+                  width: screenWidth * 0.4,
+                  child: Text(
+                    detail.isEmpty ? "스트레스 증상을 겪고있지 않아요" :
+                    "$detail의 증상을 겪고 있어요", style: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
   }
 
   Widget solutionWidget({
     required String detail,
     required bool isWeb,
     required screenWidth,
+    required bool isHistory,
   }) {
 
-    return Padding(
-      padding: isWeb ? const EdgeInsets.only(left: 60, right: 60, bottom: 30) : const EdgeInsets.only(left: 15, right: 15, bottom: 10),
-      child: Container(
-        width: screenWidth * 0.2,
+    if (isHistory) {
+      return Container(
+        width: screenWidth,
         decoration: BoxDecoration(
           color: _colorsModel.gr4,
           boxShadow: [
@@ -404,44 +558,95 @@ class _StressHistoryPageState extends State<StressHistoryPage> {
         child: Padding(
           padding:  const EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: screenWidth * 0.2,
-                decoration: BoxDecoration(
-                  color: _colorsModel.titleBox,
-                ),
-                child: const Padding(
-                  padding: EdgeInsets.only(top: 10, bottom: 10),
-                  child: Center(
-                    child: Text("대처 방안", style: TextStyle(
+              const Text("• 대처 방안", style: TextStyle(
+                fontSize: 18,
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),),
+              const SizedBox(height: 15,),
+              Row(
+                children: [
+                  SizedBox(
+                    width: SizeCalculate().widthCalculate(screenWidth, 154),
+                    height: 139,
+                    child: Image.asset("assets/icons/friends.png"),
+                  ),
+                  const SizedBox(width: 15,),
+                  SizedBox(
+                    width: screenWidth * 0.5,
+                    child: Text(
+                      detail.isEmpty ? "관련된 대처 방안을 찾지 못했어요" :
+                      "$detail에 대해 고민해보면 어떨까요?", style: const TextStyle(
                       fontSize: 16,
                       color: Colors.black,
-                      fontWeight: FontWeight.bold,
                     ),),
                   ),
-                ),
-              ),
-              const SizedBox(height: 15,),
-              SizedBox(
-                width: screenWidth * 0.2,
-                height: 156,
-                child: Image.asset("assets/icons/friends.png"),
-              ),
-              const SizedBox(height: 15,),
-              SizedBox(
-                width: screenWidth * 0.4,
-                child: Text(
-                  detail.isEmpty ? "관련된 대처 방안을 찾지 못했어요" :
-                  "$detail에 대해 고민해보면 어떨까요?", style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.black,
-                ),),
+                ],
               ),
             ],
           ),
         ),
-      ),
-    );
+      );
+    } else {
+      return Padding(
+        padding: isWeb ? const EdgeInsets.only(left: 60, right: 60, bottom: 30) : const EdgeInsets.only(left: 15, right: 15, bottom: 10),
+        child: Container(
+          width: screenWidth * 0.2,
+          decoration: BoxDecoration(
+            color: _colorsModel.gr4,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.2),
+                spreadRadius: 2,
+                blurRadius: 4,
+                offset: const Offset(0, 1), // changes position of shadow
+              ),
+            ],
+          ),
+          child: Padding(
+            padding:  const EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
+            child: Column(
+              children: [
+                Container(
+                  width: screenWidth * 0.2,
+                  decoration: BoxDecoration(
+                    color: _colorsModel.titleBox,
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.only(top: 10, bottom: 10),
+                    child: Center(
+                      child: Text("대처 방안", style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15,),
+                SizedBox(
+                  width: screenWidth * 0.2,
+                  height: 156,
+                  child: Image.asset("assets/icons/friends.png"),
+                ),
+                const SizedBox(height: 15,),
+                SizedBox(
+                  width: screenWidth * 0.4,
+                  child: Text(
+                    detail.isEmpty ? "관련된 대처 방안을 찾지 못했어요" :
+                    "$detail에 대해 고민해보면 어떨까요?", style: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
   }
 
   Widget selectDateWidget(screenWidth, isWeb) {
@@ -596,15 +801,18 @@ class _StressHistoryPageState extends State<StressHistoryPage> {
             averageScore = scores.reduce((a, b) => a + b) / scores.length;
             averageStressDescription = getAverageStressDescription(averageScore);
 
-            for (int i = 1; i < timeList.length; i++) {
+            for (int i = 0; i < timeList.length; i++) {
               DateTime time = timeList[i];
-              if (time != recentTime) {
-                results.add(historyMap[time]);
-              }
+              results.add(historyMap[time]);
             }
           }
 
           historyMap.remove(recentTime);
+
+          // 차트 데이터 생성
+          List<ChartData> chartData = results.map((result) {
+            return ChartData(result.date, calculateAverageScore(result.scores));
+          }).toList();
 
           setState(() {
             _recentTime = recentTime;
@@ -614,6 +822,7 @@ class _StressHistoryPageState extends State<StressHistoryPage> {
             _results = results;
             _averageStressDescription = averageStressDescription;
             _averageScore = averageScore;  // averageScore
+            _chartData = chartData;
           });
         } else {
           Dialogs().onlyContentOneActionDialog(context: context, content: '기록 로드 중 오류\n${historyResList.last}', firstText: '확인');
@@ -648,7 +857,7 @@ class _StressHistoryPageState extends State<StressHistoryPage> {
   String getCategoryName(int index) {
     if (index < 8) {
       return "스트레스 원인";
-    } else if (index < 16) {
+    } else if (index < 23) {
       return "스트레스 증상";
     } else {
       return "대처 방안";
@@ -692,6 +901,7 @@ class _StressHistoryPageState extends State<StressHistoryPage> {
     // 마지막 쉼표와 공백 제거
     groupedDetails.forEach((key, value) {
       if (value.endsWith(', ')) {
+        print('value ${value.length}');
         groupedDetails[key] = value.substring(0, value.length - 2);
       }
     });
@@ -700,6 +910,9 @@ class _StressHistoryPageState extends State<StressHistoryPage> {
   }
 
   String getCategoryDetail(int index) {
+    if (index > 28) {
+      return '';
+    }
     const details = [
       "치열한 경쟁", "과제 부담", "교수님과의 관계", "평가", "학업 부담", "수업 난이도", "수업 참여 부담", "제한된 시간",
       "수면 장애", "만성 피로", "두통", "복부 통증 등의 소화 문제", "손톱 물기", "졸음", "불안감", "우울감", "절망감", "집중 저하", "공격성 증가", "논쟁 경향", "사람들로부터의 고립", "학업에 대한 무관심", "음식 섭취 증가 또는 감소",
@@ -719,4 +932,10 @@ class _StressHistoryPageState extends State<StressHistoryPage> {
 
     return '$year년 $month월 $day일 $period $hour시 $minute분';
   }
+
+  double calculateAverageScore(List<int> scores) {
+    if (scores.isEmpty) return 0.0;
+    return scores.reduce((a, b) => a + b) / scores.length;
+  }
+
 }

@@ -371,6 +371,7 @@ class ChatServices {
           'scores' : scores,
           'summary' : summary,
           'feedback' : feedback,
+          'date': time,
         });
       }
 

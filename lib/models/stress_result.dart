@@ -2,8 +2,9 @@ class StressResult {
   var scores; // String -> List<int>
   var summary;  // String
   var feedback; // String
+  var date;
 
-  StressResult({this.scores, this.summary, this.feedback});
+  StressResult({this.scores, this.summary, this.feedback, this.date});
 
   StressResult returnModel(Map dataMap) {
     try {
@@ -11,6 +12,7 @@ class StressResult {
         scores: parseScores(dataMap['scores'] ?? ""),
         summary: dataMap['summary'],
         feedback: dataMap['feedback'],
+          date: dataMap['date'],
       );
     } catch(e) {
       print("error StressResult $e");
