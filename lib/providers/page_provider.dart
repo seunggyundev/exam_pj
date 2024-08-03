@@ -1,14 +1,23 @@
 import 'package:devjang_cs/models/chat_model.dart';
+import 'package:devjang_cs/models/docs_model.dart';
 import 'package:flutter/cupertino.dart';
 
 class PageProvider extends ChangeNotifier {
-  String _selectDocNm = "";
-  String get selectDocNm => _selectDocNm;
+  DocsModel _selectDocsModel = DocsModel();
+  DocsModel get selectDocsModel => _selectDocsModel;
 
-  updateSelectDocNm(String selectDocNm) {
-    _selectDocNm = selectDocNm;
+  updateSelectDocsModel(DocsModel selectDocsModel) {
+    _selectDocsModel = selectDocsModel;
     notifyListeners();
   }
+
+  // String _selectDocNm = "";
+  // String get selectDocNm => _selectDocNm;
+  //
+  // updateSelectDocNm(String selectDocNm) {
+  //   _selectDocNm = selectDocNm;
+  //   notifyListeners();
+  // }
 
   List _chatEvaluations = [];   // 채팅창이 종료되고 넘어온 데이터
   List get chatEvaluations => _chatEvaluations;

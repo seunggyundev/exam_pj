@@ -13,6 +13,8 @@ import 'package:devjang_cs/services/user_services.dart';
 import 'package:devjang_cs/widgets/appbar_widget.dart';
 import 'package:devjang_cs/widgets/dialogs.dart';
 import 'package:devjang_cs/widgets/drawer_widget.dart';
+import 'package:devjang_cs/widgets/note_widget.dart';
+import 'package:devjang_cs/widgets/pdf_viewer_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -98,6 +100,10 @@ class _HomePageState extends State<HomePage> {
         return const StressHistoryPage();
       } else if (_pageProvider.page == 5) {
         return const ArgumentHome();
+      } else if (_pageProvider.page == 6) {
+        return const PdfViewerWidget();
+      } else if (_pageProvider.page == 7) {
+        return const NoteWidget();
       }
       return Container();
     } else {

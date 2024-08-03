@@ -3,8 +3,9 @@ class DocsModel {
   var explain;
   var title;
   var key;
+  var iconNm;
 
-  DocsModel({this.key,  this.title, this.explain, this.doc});
+  DocsModel({this.key,  this.title, this.explain, this.doc, this.iconNm});
 
   DocsModel returnModel(Map dataMap) {
     return DocsModel(
@@ -12,6 +13,7 @@ class DocsModel {
       explain: dataMap['explain'],
       title: dataMap['title'],
       key: dataMap['key'],
+        iconNm: dataMap['iconNm'],
     );
   }
 }

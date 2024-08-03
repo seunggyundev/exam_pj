@@ -4,6 +4,10 @@ import 'dart:io';
 
 import 'package:devjang_cs/models/colors_model.dart';
 import 'package:devjang_cs/providers/page_provider.dart';
+import 'package:devjang_cs/services/argument_services.dart';
+import 'package:devjang_cs/services/auth_service.dart';
+import 'package:devjang_cs/services/user_services.dart';
+import 'package:devjang_cs/widgets/dialogs.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +52,7 @@ class _NoteWidgetState extends State<NoteWidget> {
 
     try {
       final contents = jsonEncode(_quillController.document.toDelta().toJson());
-      await _storage.write(key: '${_pageProvider.selectDocNm}note', value: contents);
+      await _storage.write(key: '${_pageProvider.selectDocsModel.title}note', value: contents);
 
       setState(() {
         _loading = false;
@@ -74,7 +78,7 @@ class _NoteWidgetState extends State<NoteWidget> {
     });
 
     try {
-      final contents = await _storage.read(key: '${_pageProvider.selectDocNm}note');
+      final contents = await _storage.read(key: '${_pageProvider.selectDocsModel.title}note');
       if (contents != null) {
         final document = quil.Document.fromJson(jsonDecode(contents));
         _quillController = quil.QuillController(
@@ -113,28 +117,80 @@ class _NoteWidgetState extends State<NoteWidget> {
       },
       child: Stack(
         children: [
-          quilBody(context, screenWidth, screenHeight),
+          Padding(
+            padding: EdgeInsets.only(bottom: 20.0, left: screenWidth * 0.1, right: screenWidth * 0.1),
+            child: quilBody(context, screenWidth, screenHeight),
+          ),
           Align(
             alignment: Alignment.bottomCenter,
-            child: GestureDetector(
-              onTap: () async {
-                _saveNote();
-              },
-              child: Container(
-                width: screenWidth,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: _colorsModel.main,
-                ),
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 30.0),
-                    child: Text('등록하기', style: TextStyle(
-                      color: _colorsModel.wh,
-                      fontSize: 16,
-                    ),),
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 20.0, left: screenWidth * 0.1, right: screenWidth * 0.1),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  GestureDetector(
+                    onTap: () async {
+                      _saveNote();
+                      _pageProvider.updatePage(6);
+                    },
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: Container(
+                        width: screenWidth * 0.3,
+                        decoration: BoxDecoration(
+                          color: _colorsModel.wh,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: _colorsModel.bl),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 10, bottom: 10),
+                          child: Text('저장 & 읽기자료 보기', style: TextStyle(
+                            color: _colorsModel.bl,
+                            fontSize: 16,
+                          ),textAlign: TextAlign.center),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                  GestureDetector(
+                    onTap: () async {
+                      setState(() {
+                        _loading = true;
+                      });
+
+                      final contents = jsonEncode(_quillController.document.toDelta().toJson());
+                      List resList = await ArgumentServices().saveNote(key: _pageProvider.selectDocsModel.key ?? "", uid: AuthService().getUid() ?? "", contents: contents);
+
+                      setState(() {
+                        _loading = false;
+                      });
+
+                      if (!resList.first) {
+                        Dialogs().onlyContentOneActionDialog(context: context, content: '제출오류\n${resList.last}', firstText: '확인');
+                      } else {
+                        Dialogs().onlyContentOneActionDialog(context: context, content: '제출이 완료되었습니다.', firstText: '확인');
+                      }
+                    },
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: Container(
+                        width: screenWidth * 0.3,
+                        decoration: BoxDecoration(
+                          color: _colorsModel.wh,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: _colorsModel.bl),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 10, bottom: 10),
+                          child: Text('제출하기', style: TextStyle(
+                            color: _colorsModel.bl,
+                            fontSize: 16,
+                          ),textAlign: TextAlign.center,),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -149,6 +205,7 @@ class _NoteWidgetState extends State<NoteWidget> {
       width: screenWidth,
       // height: MediaQuery.of(context).size.height * 0.6,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           quil.QuillToolbar(
             child: SingleChildScrollView(

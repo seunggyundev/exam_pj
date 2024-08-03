@@ -173,7 +173,6 @@ class _SelectTypePageState extends State<SelectTypePage> {
                   // 채팅화면에서 사용할 모델 업데이트
                   _pageProvider.updateChatModel(chatModel);
                   if (chatModel.type == "argument") {
-                    _pageProvider.updateSelectDocNm('국내 인공지능 법률 초기 입법'); // for test
                     _pageProvider.updatePage(5);
                   } else {
                     _pageProvider.updatePage(1);
@@ -199,7 +198,7 @@ class _SelectTypePageState extends State<SelectTypePage> {
               ),
             ),
             const SizedBox(height: 10,),
-            Padding(
+            chatModel.type == "argument" ? Container() : Padding(
               padding: const EdgeInsets.only(left: 40, right: 40),
               child: GestureDetector(
                 onTap: () async {

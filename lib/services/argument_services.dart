@@ -6,6 +6,22 @@ import 'package:firebase_database/firebase_database.dart';
 
 class ArgumentServices {
 
+  // 노트앱 제출
+  Future<List> saveNote({required String key, required String uid, required String contents}) async {
+    try {
+      final databaseRef = FirebaseDatabase.instance.ref('Chat/AI 튜터 논증 및 글쓰기 챗봇/note/$key/$uid').push();
+      String timestamp = DateTime.now().toIso8601String();  // Timestamp를 데이터베이스에 오류없이 담기위해 String타입으로 변환
+      await databaseRef.set({
+        'time': timestamp,
+        'contents': contents,
+      });
+
+      return [true];
+    } catch(e) {
+      print('error saveNote ${e}');
+      return [false, e.toString()];
+    }
+  }
 
 
   // 읽기자료 로드
