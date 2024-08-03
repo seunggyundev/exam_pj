@@ -323,6 +323,9 @@ class _ChatScreenState extends State<ChatScreen> {
       });
       await UserServices().updateLinkedTime(uid: _userModel.uid, chatModelKey: _pageProvider.selectChatModel.key);
       await _loadChatMessages();
+      if (_messages.isEmpty) {
+        _addInitialMessage();
+      }
     }
   }
 
@@ -334,5 +337,16 @@ class _ChatScreenState extends State<ChatScreen> {
         _prompt = resList.last;
       });
     }
+  }
+
+  // 초기 메세지 설정
+  void _addInitialMessage() {
+    setState(() {
+      _messages.add({
+        'role': 'assistant',
+        'content': '안녕하세요!',
+        'time': DateTime.now().toIso8601String(),
+      });
+    });
   }
 }
