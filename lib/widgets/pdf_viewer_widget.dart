@@ -85,7 +85,7 @@ class _PdfViewerWidgetState extends State<PdfViewerWidget> {
         const SizedBox(height: 15,),
         GestureDetector(
           onTap: () {
-            _pageProvider.updatePage(7);
+            _pageProvider.updateIsNoteApp(true);
           },
           child: MouseRegion(
             cursor: SystemMouseCursors.click,

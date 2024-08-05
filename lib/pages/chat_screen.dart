@@ -7,6 +7,8 @@ import 'package:devjang_cs/services/chat_services.dart';
 import 'package:devjang_cs/services/classification_platform.dart';
 import 'package:devjang_cs/services/user_services.dart';
 import 'package:devjang_cs/widgets/dialogs.dart';
+import 'package:devjang_cs/widgets/note_widget.dart';
+import 'package:devjang_cs/widgets/pdf_viewer_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -49,101 +51,224 @@ class _ChatScreenState extends State<ChatScreen> {
     // 가로 사이즈에 따라서 플랫폼 구별
     bool isWeb = ClassificationPlatform().classifyWithScreenSize(context: context) == 2;
 
-    return GestureDetector(
-      onTap: () {
-        // 바탕 터치시 키보드를 내리기 위함
-        FocusManager.instance.primaryFocus?.unfocus();
-      },
-      child: Column(
+    return bodyWidget(isWeb);
+  }
+
+  Widget bodyWidget(isWeb) {
+    var screenWidth = MediaQuery.of(context).size.width;
+
+    if (_pageProvider.selectChatModel.type == 'argument') {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(  // Expanded를 써야 ListView가 차지할 크기를 알 수 있기에 사용할 수 있는 크기를 전부 사용하라는 의미
-            child: ListView.builder(
-              controller: _scrollController,
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: isWeb ? const EdgeInsets.only(left: 60, right: 60) : const EdgeInsets.only(left: 15, right: 15),
-                  child: _buildMessage(_messages[index]),
-                );
+          _pageProvider.isNoteApp ? SizedBox(
+              width: screenWidth * 0.4,
+              child: const NoteWidget()) : SizedBox(
+              width: screenWidth * 0.4,
+              child: const PdfViewerWidget()),
+          SizedBox(
+            width: screenWidth * 0.5,
+            child: GestureDetector(
+              onTap: () {
+                // 바탕 터치시 키보드를 내리기 위함
+                FocusManager.instance.primaryFocus?.unfocus();
               },
-            ),
-          ),
-          Padding(
-            padding: isWeb ? const EdgeInsets.only(bottom: 40, left: 60, right: 60) : const EdgeInsets.only(bottom: 40, left: 15, right: 15),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    maxLines: null,  // 엔터를 눌러 다음 줄을 생성하기 위함
-                    textInputAction: TextInputAction.newline,  // 엔터를 눌러 다음 줄을 생성하기 위함
-                    decoration: InputDecoration(
-                      suffixIcon: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: GestureDetector(
-                          onTap: () {
-                            _sendMessage();
-                          },
-                          child: MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: Image.asset("assets/icons/send.png"),
+              child: Column(
+                children: [
+                  Expanded(  // Expanded를 써야 ListView가 차지할 크기를 알 수 있기에 사용할 수 있는 크기를 전부 사용하라는 의미
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      itemCount: _messages.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: isWeb ? const EdgeInsets.only(left: 60, right: 60) : const EdgeInsets.only(left: 15, right: 15),
+                          child: _buildMessage(_messages[index], screenWidth * 0.35),
+                        );
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: isWeb ? const EdgeInsets.only(bottom: 25, left: 60, right: 60) : const EdgeInsets.only(bottom: 40, left: 15, right: 15),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _controller,
+                            maxLines: null,  // 엔터를 눌러 다음 줄을 생성하기 위함
+                            textInputAction: TextInputAction.send,
+                            onSubmitted: (_) {
+                              _sendMessage();
+                            },
+                            decoration: InputDecoration(
+                              suffixIcon: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    _sendMessage();
+                                  },
+                                  child: MouseRegion(
+                                    cursor: SystemMouseCursors.click,
+                                    child: SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: Image.asset("assets/icons/send.png"),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              hintText: 'Type a message',
+                              fillColor: Colors.white,
+                              filled: true,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                              border: InputBorder.none,
+                              disabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: _colorsModel.textInputBorder,
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                // borderSide: BorderSide.none,
+                                borderSide: BorderSide(
+                                  color: _colorsModel.textInputBorder,
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: _colorsModel.main,
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color:  _colorsModel.textInputBorder,
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: _colorsModel.textInputBorder,
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      hintText: 'Type a message',
-                      fillColor: Colors.white,
-                      filled: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      border: InputBorder.none,
-                      disabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: _colorsModel.textInputBorder,
-                          width: 1,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        // borderSide: BorderSide.none,
-                        borderSide: BorderSide(
-                          color: _colorsModel.textInputBorder,
-                          width: 1,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: _colorsModel.main,
-                          width: 1,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color:  _colorsModel.textInputBorder,
-                          width: 1,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: _colorsModel.textInputBorder,
-                          width: 1,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      ],
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
-      ),
-    );
+      );
+    } else {
+      return GestureDetector(
+        onTap: () {
+          // 바탕 터치시 키보드를 내리기 위함
+          FocusManager.instance.primaryFocus?.unfocus();
+        },
+        child: Column(
+          children: [
+            Expanded(  // Expanded를 써야 ListView가 차지할 크기를 알 수 있기에 사용할 수 있는 크기를 전부 사용하라는 의미
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: _messages.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: isWeb ? const EdgeInsets.only(left: 60, right: 60) : const EdgeInsets.only(left: 15, right: 15),
+                    child: _buildMessage(_messages[index], screenWidth),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: isWeb ? const EdgeInsets.only(bottom: 40, left: 60, right: 60) : const EdgeInsets.only(bottom: 40, left: 15, right: 15),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _controller,
+                      maxLines: null,  // 엔터를 눌러 다음 줄을 생성하기 위함
+                      textInputAction: TextInputAction.send,
+                      onSubmitted: (_) {
+                        _sendMessage();
+                      },
+                      decoration: InputDecoration(
+                        suffixIcon: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: GestureDetector(
+                            onTap: () {
+                              _sendMessage();
+                            },
+                            child: MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: Image.asset("assets/icons/send.png"),
+                              ),
+                            ),
+                          ),
+                        ),
+                        hintText: 'Type a message',
+                        fillColor: Colors.white,
+                        filled: true,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        border: InputBorder.none,
+                        disabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: _colorsModel.textInputBorder,
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          // borderSide: BorderSide.none,
+                          borderSide: BorderSide(
+                            color: _colorsModel.textInputBorder,
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: _colorsModel.main,
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color:  _colorsModel.textInputBorder,
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: _colorsModel.textInputBorder,
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   // 서버에 저장된 대화기록을 불러오는 함수
@@ -248,8 +373,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  Widget _buildMessage(Map<String, dynamic> message) {
-
+  Widget _buildMessage(Map<String, dynamic> message, double width) {
     // 메세지의 주인이 사용자냐 GPT냐를 판단하기 위함
     bool isUser = message['role'] == 'user';
 
@@ -293,7 +417,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Container(
             margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
             padding: const EdgeInsets.all(10),
-            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),  // 박스의 최대 폭을 지정
+            constraints: BoxConstraints(maxWidth: width),  // 박스의 최대 폭을 지정
             decoration: BoxDecoration(
               color: isUser ? _colorsModel.userTextBox : _colorsModel.gptTextBox,  // 유저면 노란색 말풍선
               borderRadius: BorderRadius.circular(15),
@@ -312,6 +436,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
+
 
   // 서버에서 유저정보를 가져옴
   Future<void> userInit() async {

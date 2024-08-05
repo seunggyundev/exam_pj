@@ -100,10 +100,6 @@ class _HomePageState extends State<HomePage> {
         return const StressHistoryPage();
       } else if (_pageProvider.page == 5) {
         return const ArgumentHome();
-      } else if (_pageProvider.page == 6) {
-        return const PdfViewerWidget();
-      } else if (_pageProvider.page == 7) {
-        return const NoteWidget();
       }
       return Container();
     } else {

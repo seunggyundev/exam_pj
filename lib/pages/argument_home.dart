@@ -99,90 +99,80 @@ class _ArgumentHomeState extends State<ArgumentHome> {
   Widget typeWidget(screenWidth, bool isWeb) {
     ChatModel chatModel = _pageProvider.selectChatModel;
 
-    return GestureDetector(
-      onTap: () {
-        // 채팅화면에서 사용할 모델 업데이트
-        _pageProvider.updateChatModel(chatModel);
-        _pageProvider.updatePage(1);
-      },
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: Container(
-          width: screenWidth * 0.5,
-          height: 200,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            color: _colorsModel.wh,
-            border: Border.all(color: _colorsModel.bl),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
+    return Container(
+      width: screenWidth * 0.5,
+      height: 200,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: _colorsModel.wh,
+        border: Border.all(color: _colorsModel.bl),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                chatModel.img == null ? Container(
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12)
+                  ),
+                  width: 50,
+                  height: 50,
+                  child: Image.asset("assets/icons/img.png", fit: BoxFit.cover,),
+                ) :
+                ClipRRect(
+                  borderRadius: const BorderRadius.all(Radius.circular(12)), // 곡률 설정
+                  child: Image.network(
+                    chatModel.img,  // 이미지 링크 url
+                    key: ValueKey(chatModel.img), // 각 위젯의 고유키 설정
+                    fit: BoxFit.cover,  // 비율 유지 꽉 채움
+                    height: 50,
+                    width: 50,
+                    errorBuilder: (context, error, stackTrace) {
+                      print('img error ${error}');
+                      // 오류났을 경우의 위젯, 기본 사진으로 설정
+                      return Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12)
+                        ),
+                        width: 50,
+                        height: 50,
+                        child: Image.asset("assets/icons/user.png", fit: BoxFit.cover,),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10,),
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    chatModel.img == null ? Container(
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12)
-                      ),
-                      width: 50,
-                      height: 50,
-                      child: Image.asset("assets/icons/img.png", fit: BoxFit.cover,),
-                    ) :
-                    ClipRRect(
-                      borderRadius: const BorderRadius.all(Radius.circular(12)), // 곡률 설정
-                      child: Image.network(
-                        chatModel.img,  // 이미지 링크 url
-                        key: ValueKey(chatModel.img), // 각 위젯의 고유키 설정
-                        fit: BoxFit.cover,  // 비율 유지 꽉 채움
-                        height: 50,
-                        width: 50,
-                        errorBuilder: (context, error, stackTrace) {
-                          print('img error ${error}');
-                          // 오류났을 경우의 위젯, 기본 사진으로 설정
-                          return Container(
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12)
-                            ),
-                            width: 50,
-                            height: 50,
-                            child: Image.asset("assets/icons/user.png", fit: BoxFit.cover,),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 10,),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("${chatModel.key ?? ''}", style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),),
-                        Text("${_linkedTimeMap[chatModel.key] ?? "${chatModel.key}와 대화해보세요!"}", style: TextStyle(
-                          fontSize: 13,
-                          color: _colorsModel.gr2,
-                        ),textAlign: TextAlign.center,),
-                      ],
-                    ),
-                    const Spacer(),
+                    Text("${chatModel.key ?? ''}", style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),),
+                    Text("${_linkedTimeMap[chatModel.key] ?? "${chatModel.key}와 대화해보세요!"}", style: TextStyle(
+                      fontSize: 13,
+                      color: _colorsModel.gr2,
+                    ),textAlign: TextAlign.center,),
                   ],
                 ),
-                const SizedBox(height: 10,),
-                Text("${chatModel.explain ?? ''}", style: TextStyle(
-                  fontSize: 16,
-                  color: _colorsModel.gr2,
-                ),textAlign: TextAlign.center,),
-                !isWeb ? const SizedBox(height: 20,) : const Spacer(),  // 넓힐 수 있는 최대 간격을 넓혀줌
+                const Spacer(),
               ],
             ),
-          ),
+            const SizedBox(height: 10,),
+            Text("${chatModel.explain ?? ''}", style: TextStyle(
+              fontSize: 16,
+              color: _colorsModel.gr2,
+            ),textAlign: TextAlign.center,),
+            !isWeb ? const SizedBox(height: 20,) : const Spacer(),  // 넓힐 수 있는 최대 간격을 넓혀줌
+          ],
         ),
       ),
     );
@@ -203,7 +193,8 @@ class _ArgumentHomeState extends State<ArgumentHome> {
     return GestureDetector(
       onTap: () {
         _pageProvider.updateSelectDocsModel(docsModel);
-        _pageProvider.updatePage(6);
+        _pageProvider.updateIsNoteApp(false);
+        _pageProvider.updatePage(1);
       },
       child: MouseRegion(
         cursor: SystemMouseCursors.click,

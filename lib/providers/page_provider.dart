@@ -59,6 +59,14 @@ class PageProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool _isNoteApp = false;
+  bool get isNoteApp => _isNoteApp;
+
+  updateIsNoteApp(bool isNoteApp) {
+    _isNoteApp = isNoteApp;
+    notifyListeners();
+  }
+
   int _page = 0;
   int get page => _page;
 

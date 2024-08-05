@@ -118,25 +118,25 @@ class _NoteWidgetState extends State<NoteWidget> {
       child: Stack(
         children: [
           Padding(
-            padding: EdgeInsets.only(bottom: 20.0, left: screenWidth * 0.1, right: screenWidth * 0.1),
+            padding: EdgeInsets.only(bottom: 20.0,),
             child: quilBody(context, screenWidth, screenHeight),
           ),
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
-              padding: EdgeInsets.only(bottom: 20.0, left: screenWidth * 0.1, right: screenWidth * 0.1),
+              padding: EdgeInsets.only(bottom: 20.0, ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   GestureDetector(
                     onTap: () async {
                       _saveNote();
-                      _pageProvider.updatePage(6);
+                      _pageProvider.updateIsNoteApp(false);
                     },
                     child: MouseRegion(
                       cursor: SystemMouseCursors.click,
                       child: Container(
-                        width: screenWidth * 0.3,
+                        width: screenWidth * 0.15,
                         decoration: BoxDecoration(
                           color: _colorsModel.wh,
                           borderRadius: BorderRadius.circular(12),
@@ -174,7 +174,7 @@ class _NoteWidgetState extends State<NoteWidget> {
                     child: MouseRegion(
                       cursor: SystemMouseCursors.click,
                       child: Container(
-                        width: screenWidth * 0.3,
+                        width: screenWidth * 0.15,
                         decoration: BoxDecoration(
                           color: _colorsModel.wh,
                           borderRadius: BorderRadius.circular(12),
@@ -202,8 +202,7 @@ class _NoteWidgetState extends State<NoteWidget> {
 
   Widget quilBody(context, screenWidth, screenHeight) {
     return Container(
-      width: screenWidth,
-      // height: MediaQuery.of(context).size.height * 0.6,
+      width: screenWidth * 0.4,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
