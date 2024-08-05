@@ -1,5 +1,6 @@
 import 'package:devjang_cs/models/chat_model.dart';
 import 'package:devjang_cs/models/colors_model.dart';
+import 'package:devjang_cs/models/docs_model.dart';
 import 'package:devjang_cs/models/user_model.dart';
 import 'package:devjang_cs/providers/page_provider.dart';
 import 'package:devjang_cs/services/auth_service.dart';
@@ -11,6 +12,7 @@ import 'package:devjang_cs/widgets/note_widget.dart';
 import 'package:devjang_cs/widgets/pdf_viewer_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -56,116 +58,184 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget bodyWidget(isWeb) {
     var screenWidth = MediaQuery.of(context).size.width;
+    var screenHeight = MediaQuery.of(context).size.height;
 
     if (_pageProvider.selectChatModel.type == 'argument') {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      Color _iconColor = _colorsModel.lightGreen;
+      DocsModel docsModel = _pageProvider.selectDocsModel;
+
+      if (docsModel.iconNm == "상") {
+        _iconColor = _colorsModel.lightPink;
+      } else if (docsModel.iconNm == "중") {
+        _iconColor = _colorsModel.lightGreen;
+      } else if (docsModel.iconNm == "하") {
+        _iconColor = _colorsModel.lightYellow;
+      }
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _pageProvider.isNoteApp ? SizedBox(
-              width: screenWidth * 0.4,
-              child: const NoteWidget()) : SizedBox(
-              width: screenWidth * 0.4,
-              child: const PdfViewerWidget()),
-          SizedBox(
-            width: screenWidth * 0.5,
-            child: GestureDetector(
-              onTap: () {
-                // 바탕 터치시 키보드를 내리기 위함
-                FocusManager.instance.primaryFocus?.unfocus();
-              },
-              child: Column(
-                children: [
-                  Expanded(  // Expanded를 써야 ListView가 차지할 크기를 알 수 있기에 사용할 수 있는 크기를 전부 사용하라는 의미
-                    child: ListView.builder(
-                      controller: _scrollController,
-                      itemCount: _messages.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: isWeb ? const EdgeInsets.only(left: 60, right: 60) : const EdgeInsets.only(left: 15, right: 15),
-                          child: _buildMessage(_messages[index], screenWidth * 0.35),
-                        );
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: isWeb ? const EdgeInsets.only(bottom: 25, left: 60, right: 60) : const EdgeInsets.only(bottom: 40, left: 15, right: 15),
-                    child: Row(
+          Padding(
+            padding: EdgeInsets.only(left: screenWidth * 0.019),
+            child: Container(
+              width: screenWidth * 0.25,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: _colorsModel.wh,
+                border: Border.all(color: _colorsModel.bl),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _controller,
-                            maxLines: null,  // 엔터를 눌러 다음 줄을 생성하기 위함
-                            textInputAction: TextInputAction.send,
-                            onSubmitted: (_) {
-                              _sendMessage();
-                            },
-                            decoration: InputDecoration(
-                              suffixIcon: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    _sendMessage();
-                                  },
-                                  child: MouseRegion(
-                                    cursor: SystemMouseCursors.click,
-                                    child: SizedBox(
-                                      width: 24,
-                                      height: 24,
-                                      child: Image.asset("assets/icons/send.png"),
+                        Container(
+                          decoration: BoxDecoration(
+                              color: _iconColor,
+                              borderRadius: BorderRadius.circular(12)
+                          ),
+                          width: 50,
+                          height: 50,
+                          child: Center(
+                            child: Text("${docsModel.iconNm}", style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),),
+                          ),
+                        ),
+                        const SizedBox(width: 10,),
+                        Text("${docsModel.title ?? ''}", style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10,),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _pageProvider.isNoteApp ? SizedBox(
+                  width: screenWidth * 0.47,
+                  child: const NoteWidget()) : SizedBox(
+                  width: screenWidth * 0.47,
+                  child: const PdfViewerWidget()),
+              Container(
+                width: screenWidth * 0.47,
+                height: screenHeight * 0.8,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: _colorsModel.bl),
+                ),
+                child: GestureDetector(
+                  onTap: () {
+                    // 바탕 터치시 키보드를 내리기 위함
+                    FocusManager.instance.primaryFocus?.unfocus();
+                  },
+                  child: Column(
+                    children: [
+                      Expanded(  // Expanded를 써야 ListView가 차지할 크기를 알 수 있기에 사용할 수 있는 크기를 전부 사용하라는 의미
+                        child: ListView.builder(
+                          controller: _scrollController,
+                          itemCount: _messages.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.only(left: 15, right: 15),
+                              child: _buildMessage(_messages[index], screenWidth * 0.32),
+                            );
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10, left: 15, right: 15),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _controller,
+                                maxLines: null,  // 엔터를 눌러 다음 줄을 생성하기 위함
+                                textInputAction: TextInputAction.send,
+                                onSubmitted: (_) {
+                                  _sendMessage();
+                                },
+                                decoration: InputDecoration(
+                                  suffixIcon: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        _sendMessage();
+                                      },
+                                      child: MouseRegion(
+                                        cursor: SystemMouseCursors.click,
+                                        child: SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: Image.asset("assets/icons/send.png"),
+                                        ),
+                                      ),
                                     ),
+                                  ),
+                                  hintText: 'Type a message',
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                  border: InputBorder.none,
+                                  disabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: _colorsModel.textInputBorder,
+                                      width: 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    // borderSide: BorderSide.none,
+                                    borderSide: BorderSide(
+                                      color: _colorsModel.textInputBorder,
+                                      width: 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: _colorsModel.main,
+                                      width: 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color:  _colorsModel.textInputBorder,
+                                      width: 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: _colorsModel.textInputBorder,
+                                      width: 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
                               ),
-                              hintText: 'Type a message',
-                              fillColor: Colors.white,
-                              filled: true,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                              border: InputBorder.none,
-                              disabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: _colorsModel.textInputBorder,
-                                  width: 1,
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              focusedErrorBorder: OutlineInputBorder(
-                                // borderSide: BorderSide.none,
-                                borderSide: BorderSide(
-                                  color: _colorsModel.textInputBorder,
-                                  width: 1,
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: _colorsModel.main,
-                                  width: 1,
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color:  _colorsModel.textInputBorder,
-                                  width: 1,
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              errorBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: _colorsModel.textInputBorder,
-                                  width: 1,
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ],
       );

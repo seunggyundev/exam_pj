@@ -63,51 +63,60 @@ class _PdfViewerWidgetState extends State<PdfViewerWidget> {
     var screenWidth = MediaQuery.of(context).size.width;
     var screenHeight = MediaQuery.of(context).size.height;
 
-    return Column(
-      children: <Widget>[
-        SizedBox(
-          height: screenHeight * 0.8,
-          width: screenWidth,
-          child: _pdfControllerInitialized
-              ? PdfView(
-            scrollDirection: Axis.vertical,
-            builders: PdfViewBuilders<DefaultBuilderOptions>(
-              options: const DefaultBuilderOptions(),
-              documentLoaderBuilder: (_) =>
-              const Center(child: CircularProgressIndicator()),
-              pageLoaderBuilder: (_) =>
-              const Center(child: CircularProgressIndicator()),
-            ),
-            controller: _pdfController,
-          )
-              : Text("PDF 파일을 로드할 수 없습니다."),
-        ),
-        const SizedBox(height: 15,),
-        GestureDetector(
-          onTap: () {
-            _pageProvider.updateIsNoteApp(true);
-          },
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: Container(
-              width: screenWidth * 0.4,
-              decoration: BoxDecoration(
-                border: Border.all(color: _colorsModel.bl),
-                borderRadius: BorderRadius.circular(12),
+    return Container(
+      height: screenHeight * 0.8,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: _colorsModel.bl),
+      ),
+      child: Column(
+        children: <Widget>[
+          Container(
+            height: screenHeight * 0.72,
+            width: screenWidth,
+            child: _pdfControllerInitialized
+                ? PdfView(
+              scrollDirection: Axis.vertical,
+              builders: PdfViewBuilders<DefaultBuilderOptions>(
+                options: const DefaultBuilderOptions(),
+                documentLoaderBuilder: (_) =>
+                const Center(child: CircularProgressIndicator()),
+                pageLoaderBuilder: (_) =>
+                const Center(child: CircularProgressIndicator()),
               ),
-              child: const Padding(
-                padding: EdgeInsets.only(top: 10, bottom: 10),
-                child: Center(
-                  child: Text("에세이 작성하기", style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),),
+              controller: _pdfController,
+            )
+                : Text("PDF 파일을 로드할 수 없습니다."),
+          ),
+          const Spacer(),
+          Padding(
+            padding: EdgeInsets.only(bottom: 10, left: screenWidth * 0.12, right: screenWidth * 0.12),
+            child: GestureDetector(
+              onTap: () {
+                _pageProvider.updateIsNoteApp(true);
+              },
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: _colorsModel.bl),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.only(top: 8, bottom: 8),
+                    child: Center(
+                      child: Text("에세이 작성하기", style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),),
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

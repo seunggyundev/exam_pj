@@ -117,14 +117,131 @@ class _NoteWidgetState extends State<NoteWidget> {
       },
       child: Stack(
         children: [
-          Padding(
-            padding: EdgeInsets.only(bottom: 20.0,),
-            child: quilBody(context, screenWidth, screenHeight),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: EdgeInsets.only(bottom: 20.0, ),
+          quilBody(context, screenWidth, screenHeight),
+          _loading ? Center(child: CircularProgressIndicator(color: _colorsModel.main,),) : Container(),
+        ],
+      ),
+    );
+  }
+
+  Widget quilBody(context, screenWidth, screenHeight) {
+    return Container(
+      height: screenHeight * 0.8,
+      width: screenWidth * 0.47,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: _colorsModel.bl),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                quil.QuillToolbar(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        QuillToolbarHistoryButton(
+                          isUndo: true,
+                          controller: _quillController,
+                        ),
+                        QuillToolbarHistoryButton(
+                          isUndo: false,
+                          controller: _quillController,
+                        ),
+                        QuillToolbarToggleStyleButton(
+                          options: const QuillToolbarToggleStyleButtonOptions(),
+                          controller: _quillController,
+                          attribute: Attribute.bold,
+                        ),
+                        QuillToolbarToggleStyleButton(
+                          options: const QuillToolbarToggleStyleButtonOptions(),
+                          controller: _quillController,
+                          attribute: Attribute.italic,
+                        ),
+                        QuillToolbarToggleStyleButton(
+                          controller: _quillController,
+                          attribute: Attribute.underline,
+                        ),
+                        QuillToolbarClearFormatButton(
+                          controller: _quillController,
+                        ),
+                        const VerticalDivider(),
+                        // QuillToolbarImageButton(
+                        //   controller: _quillController,
+                        // ),
+                        // QuillToolbarCameraButton(
+                        //   controller: _quillController,
+                        // ),
+                        QuillToolbarCustomButton(
+                          controller: _quillController,
+                        ),
+                        const VerticalDivider(),
+                        QuillToolbarColorButton(
+                          controller: _quillController,
+                          isBackground: false,
+                        ),
+                        QuillToolbarColorButton(
+                          controller: _quillController,
+                          isBackground: true,
+                        ),
+                        const VerticalDivider(),
+                        QuillToolbarToggleCheckListButton(
+                          controller: _quillController,
+                        ),
+                        QuillToolbarToggleStyleButton(
+                          controller: _quillController,
+                          attribute: Attribute.ol,
+                        ),
+                        QuillToolbarToggleStyleButton(
+                          controller: _quillController,
+                          attribute: Attribute.ul,
+                        ),
+                        QuillToolbarToggleStyleButton(
+                          controller: _quillController,
+                          attribute: Attribute.inlineCode,
+                        ),
+                        QuillToolbarToggleStyleButton(
+                          controller: _quillController,
+                          attribute: Attribute.blockQuote,
+                        ),
+                        QuillToolbarIndentButton(
+                          controller: _quillController,
+                          isIncrease: true,
+                        ),
+                        QuillToolbarIndentButton(
+                          controller: _quillController,
+                          isIncrease: false,
+                        ),
+                        const VerticalDivider(),
+                        QuillToolbarLinkStyleButton(controller: _quillController),
+                      ],
+                    ),
+                  ),
+                ),
+                quil.QuillEditor.basic(
+                  configurations: quil.QuillEditorConfigurations(
+                    minHeight: 400,
+                    controller: _quillController,
+                    autoFocus: false,
+                    showCursor: true,
+                    textSelectionThemeData: TextSelectionThemeData(cursorColor: _colorsModel.bl, selectionColor: _colorsModel.bl, selectionHandleColor: _colorsModel.bl,),
+                    customStyles: DefaultStyles(
+                      color: _colorsModel.bl,
+                    ),
+                    sharedConfigurations: const quil.QuillSharedConfigurations(
+                      locale: Locale('ko'),
+                    ),
+                  ),
+                )
+              ],
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -193,118 +310,8 @@ class _NoteWidgetState extends State<NoteWidget> {
                 ],
               ),
             ),
-          ),
-          _loading ? Center(child: CircularProgressIndicator(color: _colorsModel.main,),) : Container(),
-        ],
-      ),
-    );
-  }
-
-  Widget quilBody(context, screenWidth, screenHeight) {
-    return Container(
-      width: screenWidth * 0.4,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          quil.QuillToolbar(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  QuillToolbarHistoryButton(
-                    isUndo: true,
-                    controller: _quillController,
-                  ),
-                  QuillToolbarHistoryButton(
-                    isUndo: false,
-                    controller: _quillController,
-                  ),
-                  QuillToolbarToggleStyleButton(
-                    options: const QuillToolbarToggleStyleButtonOptions(),
-                    controller: _quillController,
-                    attribute: Attribute.bold,
-                  ),
-                  QuillToolbarToggleStyleButton(
-                    options: const QuillToolbarToggleStyleButtonOptions(),
-                    controller: _quillController,
-                    attribute: Attribute.italic,
-                  ),
-                  QuillToolbarToggleStyleButton(
-                    controller: _quillController,
-                    attribute: Attribute.underline,
-                  ),
-                  QuillToolbarClearFormatButton(
-                    controller: _quillController,
-                  ),
-                  const VerticalDivider(),
-                  // QuillToolbarImageButton(
-                  //   controller: _quillController,
-                  // ),
-                  // QuillToolbarCameraButton(
-                  //   controller: _quillController,
-                  // ),
-                  QuillToolbarCustomButton(
-                    controller: _quillController,
-                  ),
-                  const VerticalDivider(),
-                  QuillToolbarColorButton(
-                    controller: _quillController,
-                    isBackground: false,
-                  ),
-                  QuillToolbarColorButton(
-                    controller: _quillController,
-                    isBackground: true,
-                  ),
-                  const VerticalDivider(),
-                  QuillToolbarToggleCheckListButton(
-                    controller: _quillController,
-                  ),
-                  QuillToolbarToggleStyleButton(
-                    controller: _quillController,
-                    attribute: Attribute.ol,
-                  ),
-                  QuillToolbarToggleStyleButton(
-                    controller: _quillController,
-                    attribute: Attribute.ul,
-                  ),
-                  QuillToolbarToggleStyleButton(
-                    controller: _quillController,
-                    attribute: Attribute.inlineCode,
-                  ),
-                  QuillToolbarToggleStyleButton(
-                    controller: _quillController,
-                    attribute: Attribute.blockQuote,
-                  ),
-                  QuillToolbarIndentButton(
-                    controller: _quillController,
-                    isIncrease: true,
-                  ),
-                  QuillToolbarIndentButton(
-                    controller: _quillController,
-                    isIncrease: false,
-                  ),
-                  const VerticalDivider(),
-                  QuillToolbarLinkStyleButton(controller: _quillController),
-                ],
-              ),
-            ),
-          ),
-          quil.QuillEditor.basic(
-            configurations: quil.QuillEditorConfigurations(
-              minHeight: 400,
-              controller: _quillController,
-              autoFocus: false,
-              showCursor: true,
-              textSelectionThemeData: TextSelectionThemeData(cursorColor: _colorsModel.bl, selectionColor: _colorsModel.bl, selectionHandleColor: _colorsModel.bl,),
-              customStyles: DefaultStyles(
-                color: _colorsModel.bl,
-              ),
-              sharedConfigurations: const quil.QuillSharedConfigurations(
-                locale: Locale('ko'),
-              ),
-            ),
-          )
-        ],
+          ],
+        ),
       ),
     );
   }
