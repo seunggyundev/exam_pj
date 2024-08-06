@@ -27,6 +27,7 @@ class _SelectTypePageState extends State<SelectTypePage> {
   PageProvider _pageProvider = PageProvider();
   UserModel _userModel = UserModel();
   Map _linkedTimeMap = {};    // 접속기록
+  Map _hasEvaluateHistory = {};
 
   @override
   void initState() {
@@ -197,7 +198,9 @@ class _SelectTypePageState extends State<SelectTypePage> {
               ),
             ),
             const SizedBox(height: 10,),
-            chatModel.type == "argument" ? Container() : Padding(
+            chatModel.type == "argument" ? Container() :
+            _hasEvaluateHistory[chatModel.key] == true ?
+            Padding(
               padding: const EdgeInsets.only(left: 40, right: 40),
               child: GestureDetector(
                 onTap: () async {
@@ -228,7 +231,7 @@ class _SelectTypePageState extends State<SelectTypePage> {
                   ),
                 ),
               ),
-            ),
+            ) : Container(),
           ],
         ),
       ),
@@ -242,15 +245,25 @@ class _SelectTypePageState extends State<SelectTypePage> {
 
     List typesResList = await ChatServices().getTypeList();  // 서버에서 타입리스트 로드
 
-    setState(() {
-      _loading = false;
-    });
-
     if (typesResList.first) {
+      List<ChatModel> chatModels = typesResList.last;
+      Map hasEvaluateHistory = {};
+
+      for (int i = 0; i < chatModels.length; i++) {
+        String chatModelKey = chatModels[i].key ?? "";
+        bool isHas = await ChatServices().hasEvaluateHistory(uid: AuthService().getUid(), chatModelKey: chatModelKey);
+        hasEvaluateHistory[chatModelKey] = isHas;
+      }
+
       setState(() {
+        _hasEvaluateHistory = hasEvaluateHistory;
         _chatModels = typesResList.last;
       });
     }
+
+    setState(() {
+      _loading = false;
+    });
   }
 
   // 서버에서 유저정보를 가져옴

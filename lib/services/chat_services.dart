@@ -457,4 +457,25 @@ class ChatServices {
       return [false, e.toString()];
     }
   }
+
+// 평가 결과 유무 확인
+  Future<bool> hasEvaluateHistory({
+    required String uid,
+    required String chatModelKey,
+  }) async {
+    try {
+      final dataRes = await FirebaseDatabase.instance.ref('Chat/$chatModelKey/History/$uid').get();
+
+      if (!dataRes.exists) {
+        return false;
+      }
+
+      Map<String, dynamic> dataMap = Map<String, dynamic>.from(json.decode(json.encode(dataRes.value)));
+
+      return dataMap.isNotEmpty;
+    } catch (e) {
+      print('error hasDebateHistory ${e}');
+      return false;
+    }
+  }
 }
