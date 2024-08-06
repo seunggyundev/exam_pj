@@ -56,6 +56,8 @@ class _ChatScreenState extends State<ChatScreen> {
     return bodyWidget(isWeb);
   }
 
+  FocusNode _textFocus = FocusNode();
+
   Widget bodyWidget(isWeb) {
     var screenWidth = MediaQuery.of(context).size.width;
     var screenHeight = MediaQuery.of(context).size.height;
@@ -85,7 +87,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 border: Border.all(color: _colorsModel.bl),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(5),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,8 +100,8 @@ class _ChatScreenState extends State<ChatScreen> {
                               color: _iconColor,
                               borderRadius: BorderRadius.circular(12)
                           ),
-                          width: 50,
-                          height: 50,
+                          width: 40,
+                          height: 40,
                           child: Center(
                             child: Text("${docsModel.iconNm}", style: const TextStyle(
                               fontSize: 20,
@@ -120,7 +122,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 10,),
+          const SizedBox(height: 5,),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -254,7 +256,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 itemBuilder: (context, index) {
                   return Padding(
                     padding: isWeb ? const EdgeInsets.only(left: 60, right: 60) : const EdgeInsets.only(left: 15, right: 15),
-                    child: _buildMessage(_messages[index], screenWidth),
+                    child: _buildMessage(_messages[index], screenWidth * 0.8),
                   );
                 },
               ),
@@ -265,6 +267,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: [
                   Expanded(
                     child: TextField(
+                      focusNode: _textFocus,
                       controller: _controller,
                       maxLines: null,  // 엔터를 눌러 다음 줄을 생성하기 위함
                       textInputAction: TextInputAction.send,
@@ -344,8 +347,13 @@ class _ChatScreenState extends State<ChatScreen> {
   // 서버에 저장된 대화기록을 불러오는 함수
   // 이전대화까지 포함하여 GPT API통신시 함께 보낼 수 있다
   Future<void> _loadChatMessages() async {
-    List<Map<String, dynamic>> messages = await _chatServices.loadChatMessages(chatModelKey: _pageProvider.selectChatModel.key, uid: _userModel.uid ?? "");
-    print('messages ${messages}');
+    List<Map<String, dynamic>> messages = [];
+
+    if (_pageProvider.selectChatModel.type == 'stress') {
+      messages = await _chatServices.loadTodayChatMessages(chatModelKey: _pageProvider.selectChatModel.key, uid: _userModel.uid ?? "");
+    } else {
+      messages = await _chatServices.loadChatMessages(chatModelKey: _pageProvider.selectChatModel.key, uid: _userModel.uid ?? "");
+    }
     setState(() {
       _messages = messages;
       _messages.reversed;  // 뒤집어서 정렬
@@ -367,7 +375,6 @@ class _ChatScreenState extends State<ChatScreen> {
         'time': DateTime.now().toIso8601String(),
       });
     });
-
     await _chatServices.saveChatMessage(key: _pageProvider.selectChatModel.key, uid: _userModel.uid ?? "", role: 'user', message:  userMessage);
 
     final assistantMessage = await _chatServices.getResponse(_messages.map((msg) {
@@ -392,7 +399,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if (assistantMessage.contains('토론이 종료되었') || assistantMessage.contains('대화가 종료되었')) {
 
       if (_pageProvider.selectChatModel.type == 'stress') {
-        List resList = await ChatServices().endStressConversation(_pageProvider.selectChatModel.key, _userModel.uid ?? "", _userModel.nm ?? "", _pageProvider.gptKey);
+        List resList = await ChatServices().endStressConversation(_pageProvider.selectChatModel.key, _userModel.uid ?? "", _userModel.nm ?? "", _pageProvider.gptKey, _pageProvider.selectChatModel.type);
         print('stress resList ${resList}');
         bool isGo = await Dialogs().showDialogWithTimer(context);
 
@@ -406,7 +413,7 @@ class _ChatScreenState extends State<ChatScreen> {
           }
         }
       } else {
-        List resList = await ChatServices().endDebateConversation(_pageProvider.selectChatModel.key, _userModel.uid ?? "", _userModel.nm ?? "", _pageProvider.gptKey);
+        List resList = await ChatServices().endDebateConversation(_pageProvider.selectChatModel.key, _userModel.uid ?? "", _userModel.nm ?? "", _pageProvider.gptKey, _pageProvider.selectChatModel.type);
 
         bool isGo = await Dialogs().showDialogWithTimer(context);
 
@@ -507,7 +514,6 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-
   // 서버에서 유저정보를 가져옴
   Future<void> userInit() async {
     List resList = await UserServices().getUserModel(uid: AuthService().getUid());
@@ -539,7 +545,7 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {
       _messages.add({
         'role': 'assistant',
-        'content': '안녕하세요!',
+        'content': _pageProvider.selectChatModel.type == 'stress' ? '안녕 만나서 반가워! 나는 ${_pageProvider.selectChatModel.name}라고 해. 너는 이름이 뭐야?' : '안녕하세요!',
         'time': DateTime.now().toIso8601String(),
       });
     });

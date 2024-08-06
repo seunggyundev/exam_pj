@@ -63,7 +63,7 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(80),
+          preferredSize: const Size.fromHeight(110),
           child: WebAppBarWidget(),
         ),  // appbar 정의
         endDrawer: const DrawerWidget(),  // 오른쪽 메뉴바가 펼쳐졌을 경우의 위젯

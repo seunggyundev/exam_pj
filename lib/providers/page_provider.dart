@@ -67,10 +67,18 @@ class PageProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  int _prePage = 0;
+  int get prePage => _prePage;
+
   int _page = 0;
   int get page => _page;
 
   updatePage(int page) {
+    if (_prePage == 5) {
+      _prePage = 0;
+    } else {
+      _prePage = _page;
+    }
     _page = page;
     notifyListeners();
   }

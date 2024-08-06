@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:devjang_cs/models/chat_model.dart';
-import 'package:devjang_cs/models/colors_model.dart';
+import 'package:intl/intl.dart';
 import 'package:devjang_cs/models/debate_result.dart';
 import 'package:devjang_cs/models/stress_result.dart';
 import 'package:http/http.dart' as http;
@@ -82,6 +82,38 @@ class ChatServices {
     }
   }
 
+  // 오늘 대화한 기록만 추출
+  Future<List<Map<String, dynamic>>> loadTodayChatMessages({required String chatModelKey, required String uid}) async {
+    try {
+      // key는 Types에 저장된 채팅타입의 key
+      // Chat/안에 여러개의 대화 타입이 있고 선택한 타입의 대화 기록중 특정 유저의 대화기록을 가져온다
+      final databaseRef = FirebaseDatabase.instance.ref('Chat/$chatModelKey/$uid');
+      final snapshot = await databaseRef.get();
+      if (snapshot.exists) {
+        List<Map<String, dynamic>> messages = [];
+        final currentDate = DateTime.now();
+        final dateFormat = DateFormat('yyyy-MM-dd');
+
+        for (var data in snapshot.children) {
+          final messageTime = DateTime.parse(data.child('time').value.toString());
+          if (dateFormat.format(messageTime) == dateFormat.format(currentDate)) {
+            messages.add({
+              'time': data.child('time').value ?? "",
+              'role': data.child('role').value ?? "",
+              'content': data.child('content').value ?? "",
+            });
+          }
+        }
+        return messages;
+      } else {
+        return [];
+      }
+    } catch(e) {
+      print('error loadChatMessages ${e}');
+      return [];
+    }
+  }
+
   Future<List> getPrompt({required String key}) async {
     try {
       // key는 Types에 저장된 채팅타입의 key
@@ -130,6 +162,7 @@ class ChatServices {
       // Chat/안에 여러개의 대화 타입이 있고 선택한 타입의 prompt를 가져온다
       var dataRef = FirebaseDatabase.instance.ref('Chat/$key/summaryPrompt');
       var dataRes = await dataRef.get();  // DatabaseReference에서 .get()키워드를 사용하여 데이터를 가져옴
+      print('$key/summaryPrompt : dataRes.value ${dataRes.value}');
       return [true, "${dataRes.value ?? ''}"];
     } catch(e) {
       print('error getSummaryPrompt ${e}');
@@ -164,10 +197,16 @@ class ChatServices {
   }
 
   // stress 대화 종료시 평가
-  Future<List> endStressConversation(String chatModelKey, String uid, String userName, String apiKey,) async {
+  Future<List> endStressConversation(String chatModelKey, String uid, String userName, String apiKey, String chatType) async {
     try {
       // 대화 로그 불러오기
-      List<Map<String, dynamic>> messages = await loadChatMessages(chatModelKey: chatModelKey, uid: uid);
+      List<Map<String, dynamic>> messages = [];
+
+      if (chatType == 'stress') {
+        messages = await loadChatMessages(chatModelKey: chatModelKey, uid: uid);
+      } else {
+        messages = await loadChatMessages(chatModelKey: chatModelKey, uid: uid);
+      }
 
       // 대화 로그를 하나의 텍스트로 합치기
       String context = getChatHistory(messages);
@@ -178,10 +217,11 @@ class ChatServices {
       if (resList.first) {
         // 대화 평가 수행
         String scores = await evaluateChat(context, apiKey, resList.last);
-        List sumPromptRes = await getSummaryPrompt(key: apiKey);
-        List feedbackPromptRes = await getFeedbackPrompt(key: apiKey);
+        List sumPromptRes = await getSummaryPrompt(key: chatModelKey);
+        List feedbackPromptRes = await getFeedbackPrompt(key: chatModelKey);
 
         if (sumPromptRes.first && feedbackPromptRes.first) {
+          print("요약 프롬프트 : ${sumPromptRes.last}");
           String summary = await evaluateChat(context, apiKey, sumPromptRes.last);
           String feedback = await evaluateChat(summary, apiKey, feedbackPromptRes.last);
 
@@ -221,10 +261,16 @@ class ChatServices {
   }
 
   // 토론 대화 종료시 평가
-  Future<List> endDebateConversation(String chatModelKey, String uid, String userName, String apiKey,) async {
+  Future<List> endDebateConversation(String chatModelKey, String uid, String userName, String apiKey, String chatType) async {
     try {
       // 대화 로그 불러오기
-      List<Map<String, dynamic>> messages = await loadChatMessages(chatModelKey: chatModelKey, uid: uid);
+      List<Map<String, dynamic>> messages = [];
+
+      if (chatType == 'stress') {
+        messages = await loadChatMessages(chatModelKey: chatModelKey, uid: uid);
+      } else {
+        messages = await loadChatMessages(chatModelKey: chatModelKey, uid: uid);
+      }
 
       // 대화 로그를 하나의 텍스트로 합치기
       String context = getChatHistory(messages);
@@ -361,7 +407,6 @@ class ChatServices {
 
       for (int i = 0; i < docIdList.length; i++) {
         Map historyMap = dataMap[docIdList[i]] ?? {};
-        print('historyMap ${historyMap}');
         DateTime time = DateTime.parse(historyMap['date'] ?? "");
         String scores = historyMap['scores'] ?? "";
         String summary = historyMap['summary'] ?? "";

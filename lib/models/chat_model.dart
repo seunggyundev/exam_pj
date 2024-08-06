@@ -16,8 +16,9 @@ class ChatModel {
   var explain;  // 해당 타입에 대한 설명
   var img;  // image
   var type; // stress, debate
+  var name;
 
-  ChatModel({this.explain, this.key, this.img, this.type,});
+  ChatModel({this.explain, this.key, this.img, this.type, this.name,});
 
   ChatModel returnModel(Map dataMap) {
     return ChatModel(
@@ -25,6 +26,7 @@ class ChatModel {
       explain: dataMap['explain'],
       img: dataMap['img'],
         type: dataMap['type'],
+        name: dataMap['name'],
     );
   }
 }

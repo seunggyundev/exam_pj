@@ -51,10 +51,10 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
           double screenSizeHeight = MediaQuery.of(context).size.height;
 
           return AppBar(
-            toolbarHeight: 80,
+            toolbarHeight: 110,
             elevation: 0,
             backgroundColor: _colorsModel.wh,
-            leadingWidth: 150,
+            leadingWidth: 200,
             leading: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -62,17 +62,36 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
                   padding: EdgeInsets.only(top: _sizeCalculate.heightCalculate(screenSizeHeight, 15), left: isWeb ? _sizeCalculate.widthCalculate(screenSizeWidth, 60) : 15),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: GestureDetector(
-                          onTap: () async {
-                            provider.updatePage(0);
-                          },
+                      Row(
+                        children: [
+                          MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: GestureDetector(
+                              onTap: () async {
+                                provider.updatePage(0);
+                              },
+                              child: SizedBox(
+                                width: _sizeCalculate.widthCalculate(screenSizeWidth, 90),
+                                height: _sizeCalculate.heightCalculate(screenSizeHeight, 47),
+                                child: Image.asset('assets/icons/haiLabIcon.png'),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10,),
+                      provider.page == 0 ? Container() : GestureDetector(
+                        onTap: () {
+                          provider.updatePage(provider.prePage);
+                        },
+                        child: MouseRegion(
+                          cursor: SystemMouseCursors.click,
                           child: SizedBox(
-                            width: _sizeCalculate.widthCalculate(screenSizeWidth, 90),
-                            height: _sizeCalculate.heightCalculate(screenSizeHeight, 47),
-                            child: Image.asset('assets/icons/haiLabIcon.png'),
+                            width: 30,
+                            height: 30,
+                            child: Image.asset("assets/icons/arrowLeft.png", color: _colorsModel.bl,),
                           ),
                         ),
                       ),

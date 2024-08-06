@@ -49,7 +49,6 @@ class _SelectTypePageState extends State<SelectTypePage> {
         !isWeb ?
         Column(
           children: [
-            const SizedBox(height: 30,),
             Expanded(
               child: ListView.builder(
                   itemCount: _chatModels.length,
@@ -64,7 +63,7 @@ class _SelectTypePageState extends State<SelectTypePage> {
         )   // 모바일일 경우에 UI
          :
         Padding(
-          padding: const EdgeInsets.only(left: 60, right: 60, top: 30, bottom: 30),
+          padding: const EdgeInsets.only(left: 60, right: 60, bottom: 30),
           child: GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2, //1 개의 행에 보여줄 item 개수
@@ -135,12 +134,12 @@ class _SelectTypePageState extends State<SelectTypePage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("${chatModel.key ?? ''}", style: const TextStyle(
+                    Text("${chatModel.name ?? ''}", style: const TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),),
-                    Text("${_linkedTimeMap[chatModel.key] ?? "${chatModel.key}와 대화해보세요!"}", style: TextStyle(
+                    Text("${_linkedTimeMap[chatModel.name] ?? "${chatModel.name}와 대화해보세요!"}", style: TextStyle(
                       fontSize: 13,
                       color: _colorsModel.gr2,
                     ),textAlign: TextAlign.center,),
