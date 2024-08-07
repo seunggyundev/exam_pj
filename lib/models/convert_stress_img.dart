@@ -39,7 +39,7 @@ class ConvertStressImg {
   };
 
   String getStressImg(String type, String imgKey) {
-    print('imgKey ${imgKey}');
+
     if (imgKey.contains(',')) {
       List splitList = imgKey.split(',');
       imgKey = splitList.first.toString().trim();

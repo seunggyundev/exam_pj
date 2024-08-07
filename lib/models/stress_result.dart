@@ -3,13 +3,21 @@ class StressResult {
   var summary;  // String
   var feedback; // String
   var date;
+  var averageScore;
+  var averageStressDescription;
 
-  StressResult({this.scores, this.summary, this.feedback, this.date});
+  StressResult({this.scores, this.summary, this.feedback, this.date, this.averageScore, this.averageStressDescription});
 
   StressResult returnModel(Map dataMap) {
     try {
+      List<int> scores = parseScores(dataMap['scores'] ?? "");
+      double averageScore = parseAverageScore(scores);
+      String averageStressDescription = getAverageStressDescription(averageScore);
+
       return StressResult(
-        scores: parseScores(dataMap['scores'] ?? ""),
+        scores: scores,
+          averageScore: averageScore,
+          averageStressDescription: averageStressDescription,
         summary: dataMap['summary'] == null ? {} : parseSumFeed(dataMap['summary'] ?? ""),
         feedback: dataMap['feedback'] == null ? {} : parseSumFeed(dataMap['feedback'] ?? ""),
           date: dataMap['date'],
@@ -17,6 +25,17 @@ class StressResult {
     } catch(e) {
       print("error StressResult $e");
       return StressResult();
+    }
+  }
+
+  double parseAverageScore(List<int> scores) {
+    try {
+      scores = scores.where((element) => element != 0).toList();
+      double averageScore = scores.reduce((a, b) => a + b) / scores.length;
+      return averageScore;
+    } catch(e) {
+      print('error parseAverageScore $e');
+      return 0.0;
     }
   }
 
@@ -60,6 +79,20 @@ class StressResult {
     }
 
     return categorizedMap;
+  }
+
+  String getAverageStressDescription(double average) {
+    if (average >= 4.5) {
+      return "매우 높음";
+    } else if (average >= 3.5) {
+      return "높음";
+    } else if (average >= 2.5) {
+      return "중간";
+    } else if (average >= 1.5) {
+      return "낮음";
+    } else {
+      return "매우 낮음";
+    }
   }
 
 }
